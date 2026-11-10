@@ -71,4 +71,27 @@ export const api = {
   profile: (numericId: string) => api.mGet<import("./types").User>(`profile/${numericId}`),
   userPosts: (numericId: string, page: number, size = 20) =>
     api.mGet<unknown>(`users/${numericId}/posts`, { page, pagination_size: size }),
+
+  // Phase 2 writes — idempotent v1 POST/DELETE pairs only (never legacy toggles)
+  likePost: (postId: string) =>
+    api.mPost<{ liked: boolean; likeCount: number }>(`v1/app/posts/${postId}/like`),
+  unlikePost: (postId: string) =>
+    api.mDelete<{ liked: boolean; likeCount: number }>(`v1/app/posts/${postId}/like`),
+  createComment: (postId: string, comment: string, parentCommentId?: string) =>
+    api.mPost<import("./types").Comment>("v1/app/comments", {
+      post_id: postId,
+      comment,
+      ...(parentCommentId ? { parent_comment_id: parentCommentId } : {}),
+    }),
+  deleteComment: (commentId: string) => api.mDelete<unknown>(`v1/app/comments/${commentId}`),
+  replies: (commentId: string, page: number, limit = 20) =>
+    api.mGet<{ replies: import("./types").Comment[]; meta?: import("./types").Pagination }>(`v1/app/comments/${commentId}/replies`, { page, limit }),
+  follow: (publicId: string) =>
+    api.mPost<{ following: boolean; followerCount: number; followingCount: number }>(`v1/app/users/${publicId}/follow`),
+  unfollow: (publicId: string) =>
+    api.mDelete<{ following: boolean; followerCount: number; followingCount: number }>(`v1/app/users/${publicId}/follow`),
+  searchUsers: (keyword: string, page = 1, pageSize = 20) =>
+    api.mGet<unknown>("search", { keyword, page, pageSize, type: "user" }),
+  searchTag: (tag: string, page = 1, limit = 20) =>
+    api.mGet<{ posts: import("./types").Post[]; meta?: import("./types").Pagination }>("v1/app/search/posts-by-tag", { tag, page, limit }),
 };

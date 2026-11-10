@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { ApiError, api } from "../api";
 import Avatar from "../components/Avatar";
 import PostCard from "../components/PostCard";
+import FollowButton from "../components/FollowButton";
+import { useSession } from "../hooks";
 import { avatarOf } from "../util";
 import type { Pagination, Post, User } from "../types";
 
@@ -29,6 +31,9 @@ export default function Profile() {
   const [page, setPage] = useState(0);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [loadingPosts, setLoadingPosts] = useState(false);
+  const [followerCount, setFollowerCount] = useState<number | null>(null);
+  const { user } = useSession();
+  const isSelf = !!user && (profile?.id === user.id || profile?.publicId === user.publicId);
 
   useEffect(() => {
     setProfile(null);
@@ -75,7 +80,7 @@ export default function Profile() {
   if (!profile) return <p className="muted">Loading profile…</p>;
 
   const stats = profile.stats;
-  const followers = stats?.followerCount ?? profile.followerCount;
+  const followers = followerCount ?? stats?.followerCount ?? profile.followerCount;
   const following = stats?.followingCount ?? profile.followingCount;
   const postCount = stats?.postCount ?? profile.postCount;
 
@@ -83,7 +88,7 @@ export default function Profile() {
     <div className="profile">
       <header className="card profile-header">
         <Avatar url={avatarOf(profile)} name={profile.display_name ?? profile.name ?? profile.username} size={72} />
-        <div>
+        <div className="profile-info">
           <h2>{profile.display_name ?? profile.name ?? profile.username}</h2>
           <p className="muted">@{profile.username}</p>
           {profile.bio && <p className="bio">{profile.bio}</p>}
@@ -91,6 +96,16 @@ export default function Profile() {
             {postCount ?? posts.length} posts · {followers ?? "?"} followers · {following ?? "?"} following
           </p>
         </div>
+        {!isSelf && (
+          <FollowButton
+            publicId={profile.publicId}
+            initialFollowing={profile.is_following ?? profile.isFollowing}
+            onState={(following, count) => {
+              setProfile((p) => (p ? { ...p, is_following: following } : p));
+              if (typeof count === "number") setFollowerCount(count);
+            }}
+          />
+        )}
       </header>
       <section className="profile-posts">
         {posts.map((p) => (

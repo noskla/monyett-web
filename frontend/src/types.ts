@@ -22,6 +22,7 @@ export interface MediaFile {
 export interface User {
   id?: number;
   publicId?: string;
+  public_id?: string;
   username?: string;
   name?: string;
   display_name?: string;
@@ -31,6 +32,7 @@ export interface User {
   profile_picture?: MediaFile;
   verified?: boolean;
   is_following?: boolean;
+  isFollowing?: boolean;
   is_follower?: boolean;
   has_stories?: boolean;
   followers_count?: number;

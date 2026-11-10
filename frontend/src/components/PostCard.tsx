@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { Post } from "../types";
 import Avatar from "./Avatar";
 import Media from "./Media";
+import LikeButton from "./LikeButton";
 import { timeAgo } from "../util";
 
 /** The dominant feed component: author, text, media, counts. */
@@ -31,7 +32,7 @@ export default function PostCard({ post }: { post: Post }) {
         <Media media={post.media} />
       </Link>
       <footer className="post-footer muted small">
-        <span>♥ {post.likes_count ?? 0}</span>
+        <LikeButton postId={post.publicId} initialLiked={post.is_liked} initialCount={post.likes_count ?? 0} />
         <span>💬 {post.comments_count ?? 0}</span>
         <span>🔁 {post.repost_count ?? 0}</span>
         <span>👁 {post.view_count ?? 0}</span>

@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Feed from "./pages/Feed";
 import PostDetail from "./pages/PostDetail";
 import Profile from "./pages/Profile";
+import Search from "./pages/Search";
 import Layout from "./components/Layout";
 import { useSession } from "./hooks";
 
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/" element={<Feed />} />
         <Route path="/post/:publicId" element={<PostDetail />} />
         <Route path="/u/:username" element={<Profile />} />
+        <Route path="/search" element={<Search />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

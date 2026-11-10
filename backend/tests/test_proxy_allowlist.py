@@ -151,6 +151,40 @@ def test_tampered_session_cookie_is_401(app):
     run(main())
 
 
+def test_phase2_write_endpoints_allowlisted(app, upstream):
+    """Every Phase 2 write/read endpoint must pass the allowlist and forward."""
+    import json as _json
+
+    upstream.add("POST", r"/api/v1/app/posts/[^/]+/like", lambda req: httpx.Response(200, json={"success": True, "payload": {"liked": True, "likeCount": 5}}))
+    upstream.add("DELETE", r"/api/v1/app/posts/[^/]+/like", lambda req: httpx.Response(200, json={"success": True, "payload": {"liked": False, "likeCount": 4}}))
+    upstream.add("POST", r"/api/v1/app/comments", lambda req: httpx.Response(200, json={"success": True, "payload": {"public_id": "c9", **_json.loads(req.content)}}))
+    upstream.add("DELETE", r"/api/v1/app/comments/[^/]+", lambda req: httpx.Response(200, json={"success": True, "payload": None}))
+    upstream.add("GET", r"/api/v1/app/comments/[^/]+/replies", lambda req: httpx.Response(200, json={"success": True, "payload": {"replies": [], "meta": {"pagination": {"page": 1}}}}))
+    upstream.add("POST", r"/api/v1/app/users/[^/]+/follow", lambda req: httpx.Response(200, json={"success": True, "payload": {"following": True, "followerCount": 13, "followingCount": 34}}))
+    upstream.add("DELETE", r"/api/v1/app/users/[^/]+/follow", lambda req: httpx.Response(200, json={"success": True, "payload": {"following": False, "followerCount": 12, "followingCount": 34}}))
+    upstream.add("GET", r"/api/search", lambda req: httpx.Response(200, json={"users": [{"id": 8, "username": "bob"}], "meta": {"pagination": {"page": 1}}}))
+    upstream.add("GET", r"/api/v1/app/search/posts-by-tag", lambda req: httpx.Response(200, json={"posts": [], "meta": {"pagination": {"page": 1}}}))
+
+    async def main():
+        async with await asgi_client(app) as ac:
+            h = both_cookies()
+            checks = [
+                ("POST", "/m/v1/app/posts/p1/like", None, 200),
+                ("DELETE", "/m/v1/app/posts/p1/like", None, 200),
+                ("POST", "/m/v1/app/comments", {"post_id": "p1", "comment": "hi"}, 200),
+                ("DELETE", "/m/v1/app/comments/c1", None, 200),
+                ("GET", "/m/v1/app/comments/c1/replies?page=1", None, 200),
+                ("POST", "/m/v1/app/users/uuid-1/follow", None, 200),
+                ("DELETE", "/m/v1/app/users/uuid-1/follow", None, 200),
+                ("GET", "/m/search?keyword=bob&type=user", None, 200),
+                ("GET", "/m/v1/app/search/posts-by-tag?tag=art", None, 200),
+            ]
+            for method, path, body, want in checks:
+                r = await ac.request(method, path, json=body, headers=h)
+                assert r.status_code == want, f"{method} {path} -> {r.status_code}"
+    run(main())
+
+
 def test_rate_limit_guardrail(upstream):
     from app.main import create_app
     from conftest import make_config
