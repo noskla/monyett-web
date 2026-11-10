@@ -33,12 +33,22 @@ export default function Layout() {
         <Link to="/" className="brand">
           <img src="/logo.svg" alt="Monnett" className="brand-logo" />
         </Link>
+        <form className="topbar-search" onSubmit={onSearch}>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users or #tag" />
+        </form>
         {user?.username && (
           <Link to={`/u/${user.username}`} className="muted topbar-user">
             @{user.username}
           </Link>
         )}
-        <button onClick={onLogout}><Icon name="exit" size={14} /> Log out</button>
+        {features?.createPost && (
+          <button className="icon-btn" onClick={() => navigate("/compose")} title="New post" aria-label="New post">
+            <Icon name="plus" size={17} />
+          </button>
+        )}
+        <button className="icon-btn" onClick={onLogout} title="Log out" aria-label="Log out">
+          <Icon name="exit" size={17} />
+        </button>
       </header>
       <div className="layout-grid">
         <main className="main-col">
@@ -48,15 +58,6 @@ export default function Layout() {
           <nav className="side-nav card">
             <Link to="/"><Icon name="home" size={16} /> Feed</Link>
             {features?.discover && <Link to="/discover"><Icon name="compass" size={16} /> Discover</Link>}
-            <form className="side-search" onSubmit={onSearch}>
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users or #tag" />
-              <button type="submit" aria-label="search"><Icon name="search" size={15} /></button>
-            </form>
-            {features?.createPost && (
-              <button className="compose-btn" onClick={() => navigate("/compose")}>
-                <Icon name="plus" size={15} /> New post
-              </button>
-            )}
           </nav>
           {features?.notifications && <NotificationsPanel />}
           <p className="muted small side-note">
