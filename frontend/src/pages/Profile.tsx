@@ -74,6 +74,7 @@ export default function Profile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username]);
 
+  const [storyUser, setStoryUser] = useState<import("../types").StoryUser | null>(null);
   const [months, setMonths] = useState<string[]>([]);
   const [monthStories, setMonthStories] = useState<unknown>(null);
   const [openMonth, setOpenMonth] = useState<string | null>(null);
@@ -91,6 +92,16 @@ export default function Profile() {
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profile?.publicId, profile?.id]);
+
+  // active stories (24h) of this user, via the story-ring endpoint
+  useEffect(() => {
+    if (!profile?.publicId) return;
+    if (!profile.has_stories && !profile.hasStories) return;
+    api
+      .userStories(profile.publicId)
+      .then((res) => setStoryUser(res.data as import("../types").StoryUser))
+      .catch(() => {});
+  }, [profile?.publicId, profile?.has_stories, profile?.hasStories]);
 
   async function openMonthStories(month: string) {
     if (!profile?.publicId) return;
@@ -134,21 +145,36 @@ export default function Profile() {
   return (
     <div className="profile">
       <header className="card profile-header">
-        <span
-          className="avatar-zoomable"
-          onClick={() => avatarOf(profile) && setZoomAvatar(true)}
-          title="View avatar"
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === "Enter" && setZoomAvatar(true)}
-        >
-          <Avatar
-            url={avatarOf(profile)}
-            name={profile.display_name ?? profile.name ?? profile.username}
-            size={96}
-            user={profile}
-          />
-        </span>
+        {storyUser?.stories?.length ? (
+          <Link
+            to={`/stories/${profile.publicId}`}
+            className="avatar-zoomable"
+            title="View stories"
+          >
+            <Avatar
+              url={avatarOf(profile)}
+              name={profile.display_name ?? profile.name ?? profile.username}
+              size={96}
+              user={{ ...profile, ring_color: storyUser.has_unseen ? "#FF384F" : storyUser.ring_color, ring_colors: storyUser.has_unseen ? ["#FF384F"] : storyUser.ring_colors }}
+            />
+          </Link>
+        ) : (
+          <span
+            className="avatar-zoomable"
+            onClick={() => avatarOf(profile) && setZoomAvatar(true)}
+            title="View avatar"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && setZoomAvatar(true)}
+          >
+            <Avatar
+              url={avatarOf(profile)}
+              name={profile.display_name ?? profile.name ?? profile.username}
+              size={96}
+              user={profile}
+            />
+          </span>
+        )}
         {zoomAvatar && avatarOf(profile) && (
           <Lightbox src={avatarOf(profile)!} alt={profile.username ?? "avatar"} onClose={() => setZoomAvatar(false)} />
         )}
@@ -190,6 +216,29 @@ export default function Profile() {
           />
         )}
       </header>
+      {storyUser?.stories?.length ? (
+        <section className="card stories-strip-card">
+          <h3>Stories</h3>
+          <div className="stories-strip">
+            {storyUser.stories.map((s) => {
+              const thumb = s.media?.[0];
+              return (
+                <Link key={s.publicId} to={`/stories/${profile.publicId}`} className="story-thumb" title={s.description}>
+                  {thumb?.url ? (
+                    thumb.mime?.startsWith("video/") ? (
+                      <span className="archive-vid"><Icon name="camera-movie-1" size={18} /></span>
+                    ) : (
+                      <img src={thumb.compressed_url ?? thumb.url} alt="" />
+                    )
+                  ) : (
+                    <span className="muted">·</span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
       {isSelf && months.length > 0 && (
         <section className="card archive">
           <h3>Story archive</h3>

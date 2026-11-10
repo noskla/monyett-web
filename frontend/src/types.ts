@@ -44,6 +44,7 @@ export interface User {
   isFollowing?: boolean;
   is_follower?: boolean;
   has_stories?: boolean;
+  hasStories?: boolean;
   followers_count?: number;
   following_count?: number;
   posts_count?: number;
