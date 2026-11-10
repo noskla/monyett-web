@@ -74,6 +74,36 @@ export default function Profile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username]);
 
+  const [months, setMonths] = useState<string[]>([]);
+  const [monthStories, setMonthStories] = useState<unknown>(null);
+  const [openMonth, setOpenMonth] = useState<string | null>(null);
+
+  // own story archive (months)
+  useEffect(() => {
+    if (!(user && profile && (profile.id === user.id || profile.publicId === user.publicId)) || !profile?.publicId) return;
+    api
+      .userStoryMonths(profile.publicId)
+      .then((res) => {
+        const raw = res.data as Record<string, unknown>;
+        const list = Array.isArray(raw) ? raw : (raw?.months as string[]) ?? [];
+        setMonths(list.map((m) => String(typeof m === "string" ? m : (m as Record<string, unknown>).month)));
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, profile?.publicId, profile?.id]);
+
+  async function openMonthStories(month: string) {
+    if (!profile?.publicId) return;
+    setOpenMonth(month);
+    try {
+      const res = await api.userStoryMonth(profile.publicId, month);
+      const raw = res.data as Record<string, unknown>;
+      setMonthStories(Array.isArray(raw) ? raw : raw?.stories ?? []);
+    } catch {
+      setMonthStories([]);
+    }
+  }
+
   const loadPosts = useCallback(async (numericId: string, p: number, replace: boolean) => {
     setLoadingPosts(true);
     try {
@@ -160,6 +190,34 @@ export default function Profile() {
           />
         )}
       </header>
+      {isSelf && months.length > 0 && (
+        <section className="card archive">
+          <h3>Story archive</h3>
+          <div className="archive-months">
+            {months.map((m) => (
+              <button key={m} className={`chip${openMonth === m ? " active" : ""}`} onClick={() => openMonthStories(m)}>{m}</button>
+            ))}
+          </div>
+          {openMonth && (
+            <div className="archive-stories">
+              {(Array.isArray(monthStories) ? monthStories : []).map((s, i) => {
+                const st = s as { publicId?: string; media?: { url?: string; mime?: string }[] };
+                const thumb = st.media?.[0];
+                return (
+                  <Link key={st.publicId ?? i} to={`/stories/${profile.publicId}`} className="archive-thumb">
+                    {thumb?.url ? (
+                      thumb.mime?.startsWith("video/") ? <span className="archive-vid"><Icon name="camera-movie-1" size={18} /></span> : <img src={thumb.url} alt="" />
+                    ) : (
+                      <span className="muted">·</span>
+                    )}
+                  </Link>
+                );
+              })}
+              {Array.isArray(monthStories) && monthStories.length === 0 && <p className="muted small">No stories this month.</p>}
+            </div>
+          )}
+        </section>
+      )}
       <section className="profile-posts">
         {posts.map((p) => (
           <PostCard key={p.publicId ?? p.id} post={p} authorFallback={profile} />

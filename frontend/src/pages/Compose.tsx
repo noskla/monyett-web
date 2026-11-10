@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ApiError, api } from "../api";
 import Icon from "../components/Icon";
 import Avatar from "../components/Avatar";
@@ -18,6 +18,8 @@ const AUDIENCES = [
  *  the poster sees how the media will be cropped/visible on a phone screen. */
 export default function Compose() {
   const { user } = useSession();
+  const [params] = useSearchParams();
+  const isStory = params.get("type") === "story";
   const [text, setText] = useState("");
   const [audience, setAudience] = useState("PUBLIC");
   const [files, setFiles] = useState<File[]>([]);
@@ -34,7 +36,7 @@ export default function Compose() {
 
   function pickFiles(list: FileList | null) {
     if (!list) return;
-    setFiles(Array.from(list));
+    setFiles(isStory ? Array.from(list).slice(0, 1) : Array.from(list));
     setError(null);
   }
 
@@ -64,10 +66,11 @@ export default function Compose() {
           }
         : undefined;
       const res = await api.createPost({
+        post_type: isStory ? "STORY" : "POST",
         description: text.trim() || undefined,
         share_with: audience,
         media_count: files.length,
-        ...(location ? { location } : {}),
+        ...(location && !isStory ? { location } : {}),
       });
       const postId = typeof res.data === "string" ? res.data : (res.data as { publicId?: string })?.publicId;
       if (!postId) throw new ApiError(502, "no_post_id", "create returned no post id");
@@ -75,7 +78,7 @@ export default function Compose() {
         setProgress(`Uploading media ${i + 1}/${files.length}…`);
         await api.uploadMedia(postId, files[i], i);
       }
-      navigate(`/post/${postId}`);
+      navigate(isStory && user?.publicId ? `/stories/${user.publicId}` : `/post/${postId}`);
     } catch (e) {
       setError((e as ApiError).message ?? "failed to create post");
       setProgress(null);
@@ -86,13 +89,13 @@ export default function Compose() {
 
   return (
     <div className="compose">
-      <h2>New post</h2>
+      <h2>{isStory ? "New story" : "New post"}</h2>
       <div className="compose-grid">
         <form className="card compose-form" onSubmit={submit}>
           <label className={`file-drop${files.length ? " has-files" : ""}`}>
-            <input type="file" accept="image/*,video/*" multiple onChange={(e) => pickFiles(e.target.files)} />
+            <input type="file" accept="image/*,video/*" multiple={!isStory} onChange={(e) => pickFiles(e.target.files)} />
             {files.length === 0 ? (
-              <span className="muted"><Icon name="camera-1" size={18} /> Add photos / videos (required)</span>
+              <span className="muted"><Icon name="camera-1" size={18} /> {isStory ? "Add a photo / video (required)" : "Add photos / videos (required)"}</span>
             ) : (
               <span>{files.length} file{files.length > 1 ? "s" : ""} selected — tap to change</span>
             )}
@@ -107,16 +110,17 @@ export default function Compose() {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Description (optional)… #hashtags"
+            placeholder={isStory ? "Caption (optional)…" : "Description (optional)… #hashtags"}
             rows={4}
           />
           <div className="compose-row">
-            <select value={audience} onChange={(e) => setAudience(e.target.value)} title="Who can see this post">
+            <select value={audience} onChange={(e) => setAudience(e.target.value)} title="Who can see this">
               {AUDIENCES.map((a) => (
                 <option key={a.value} value={a.value}>{a.label}</option>
               ))}
             </select>
           </div>
+          {!isStory && (
           <div className="compose-row">
             <button type="button" className="link-btn" onClick={useMyLocation}>
               <Icon name="map-marker-1" size={14} /> {loc ? `${loc.lat?.toFixed(3)}, ${loc.lng?.toFixed(3)}` : "Add location"}
@@ -128,8 +132,9 @@ export default function Compose() {
               </>
             )}
           </div>
+          )}
           <button disabled={busy || files.length === 0}>
-            {busy ? (progress ?? "Posting…") : "Post"}
+            {busy ? (progress ?? "Posting…") : isStory ? "Share story" : "Post"}
           </button>
           {error && <p className="error">{error}</p>}
         </form>

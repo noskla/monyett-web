@@ -458,3 +458,28 @@ a { color: var(--link); }
 /* like button is a <button> — normalize UA button metrics so it matches plain spans */
 .post-footer > * { display: inline-flex; align-items: center; gap: 0.25rem; line-height: 1; }
 .like-btn { font: inherit; appearance: none; -webkit-appearance: none; }
+
+/* --- stories: add badge, viewer progress, viewers, archive --- */
+.story-add {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent); color: #fff; border: 2px solid var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.story-ring { position: relative; }
+.story-progress { display: flex; gap: 4px; padding: 0.5rem 0.25rem 0; }
+.story-prog { flex: 1; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
+.story-prog.done { background: var(--muted); }
+.story-prog.now { background: var(--accent); }
+.story-confirm { position: absolute; top: 3.5rem; left: 50%; transform: translateX(-50%); z-index: 5; }
+.danger-btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer; }
+.story-viewers { position: absolute; top: 3.5rem; right: 0.5rem; z-index: 5; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem; max-height: 50vh; overflow: auto; width: 220px; }
+.story-viewer-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0; font-size: 0.9rem; }
+.archive h3 { margin: 0 0 0.5rem; }
+.archive-months { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chip { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 999px; padding: 0.25rem 0.7rem; cursor: pointer; font-size: 0.85rem; }
+.chip.active { border-color: var(--accent); color: var(--accent); }
+.archive-stories { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+.archive-thumb { width: 72px; height: 96px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; background: #000; }
+.archive-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.archive-vid { color: var(--muted); }

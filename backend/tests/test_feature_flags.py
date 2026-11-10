@@ -1,4 +1,6 @@
 """Phase 3 feature flags: /api/features + proxy enforcement."""
+import httpx
+
 from app.main import create_app
 from conftest import asgi_client, gate_cookie_header, make_config, merge_cookies, run, session_cookie_header
 
@@ -51,9 +53,22 @@ def test_create_post_flag_gates_both_create_and_upload(upstream):
 
 def test_users_stories_allowlisted_when_stories_enabled(app, upstream):
     upstream.json("GET", r"/api/v1/app/users/[^/]+/stories", {"stories": []})
+    upstream.json("GET", r"/api/v1/app/users/[^/]+/stories/months", {"months": []})
+    upstream.json("GET", r"/api/v1/app/users/[^/]+/stories/months/[^/]+", {"stories": []})
+    upstream.json("GET", r"/api/v1/app/stories/[^/]+/viewers", {"viewers": []})
+    upstream.add("DELETE", r"/api/v1/app/post/[^/]+", lambda req: httpx.Response(200, json={"success": True}))
 
     async def main():
         async with await asgi_client(app) as ac:
-            r = await ac.get("/m/v1/app/users/uuid-9/stories", headers=merge_cookies(gate_cookie_header(), session_cookie_header()))
+            h = merge_cookies(gate_cookie_header(), session_cookie_header())
+            for path in [
+                "/m/v1/app/users/uuid-9/stories",
+                "/m/v1/app/users/uuid-9/stories/months",
+                "/m/v1/app/users/uuid-9/stories/months/2026-11",
+                "/m/v1/app/stories/s1/viewers",
+            ]:
+                r = await ac.get(path, headers=h)
+                assert r.status_code == 200, path
+            r = await ac.delete("/m/v1/app/post/uuid-9", headers=h)
             assert r.status_code == 200
     run(main())

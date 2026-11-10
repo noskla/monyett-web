@@ -40,6 +40,7 @@ _ALLOWED: list[tuple[str, re.Pattern[str]]] = [
     ("GET", re.compile(rf"^/api/v1/app/feed$")),
     ("GET", re.compile(rf"^/api/v1/app/feed/discover$")),
     ("GET", re.compile(rf"^/api/v1/app/post/{_ID}$")),
+    ("DELETE", re.compile(rf"^/api/v1/app/post/{_ID}$")),
     ("POST", re.compile(rf"^/api/v1/app/post/create$")),
     ("GET", re.compile(rf"^/api/v1/app/posts/{_ID}/comments$")),
     ("POST", re.compile(rf"^/api/v1/app/posts/{_ID}/like$")),
@@ -62,13 +63,16 @@ _ALLOWED: list[tuple[str, re.Pattern[str]]] = [
     ("POST", re.compile(rf"^/api/notification/mark-all-seen$")),
     ("GET", re.compile(rf"^/api/v1/app/stories$")),
     ("POST", re.compile(rf"^/api/v1/app/stories/{_ID}/view$")),
+    ("GET", re.compile(rf"^/api/v1/app/stories/{_ID}/viewers$")),
     ("GET", re.compile(rf"^/api/v1/app/users/{_ID}/stories$")),
+    ("GET", re.compile(rf"^/api/v1/app/users/{_ID}/stories/months$")),
+    ("GET", re.compile(rf"^/api/v1/app/users/{_ID}/stories/months/{_ID}$")),
     ("POST", re.compile(rf"^/api/v1/app/media/upload$")),
 ]
 
 # Phase 3 feature flags: path pattern -> config flag (PLAN.md §4 Phase 3)
 _FEATURE_FLAGS = [
-    (re.compile(r"^/api/v1/app/(post/create|media/upload)$"), "enable_create_post"),
+    (re.compile(rf"^/api/v1/app/(post/create|media/upload|post/{_ID})$"), "enable_create_post"),
     (re.compile(r"^/api/notification"), "enable_notifications"),
     (re.compile(rf"^/api/v1/app/(stories|users/{_ID}/stories)"), "enable_stories"),
     (re.compile(r"^/api/v1/app/feed/discover$"), "enable_discover"),

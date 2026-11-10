@@ -6,7 +6,9 @@ A personal, single-account, self-hosted web client for [Monnett](https://monnett
 
 ## Features
 
-Sign in → chronological feed (background new-post check with a manual "-- refresh --") → post detail with threaded comments → profiles → like / comment / follow / search (users + hashtags) → create media-first posts (multi photo/video, audience, location, phone-frame preview) → notifications → stories (view) → discover (global/country/city/nearby). Monnett brand styling, member badges, avatar rings, hashtag links, photo lightbox with cursor zoom.
+Sign in → chronological feed (background new-post check with a manual "-- refresh --") → post detail with threaded comments → profiles → like / comment / follow / search (users + hashtags) → create media-first posts (multi photo/video, audience, location, phone-frame preview) → notifications → discover (global/country/city/nearby). Monnett brand styling, member badges, avatar rings, hashtag links, photo lightbox with cursor zoom.
+
+**Stories**: circles above the feed (your story first, "+" to add; pink ring = unseen), tap-through viewer with progress bars, auto-advance, hold-to-pause and tap zones; create stories from the compose page (`/compose?type=story`, `post_type: "STORY"` + media upload); on your own stories you can see viewers and delete them; story archive by month on your own profile. Read-mostly: only "mark viewed" is automatic; everything else is an explicit action.
 
 Out of scope by design: E2EE DMs, push notifications, registration/deletion, payments, admin — see `PLAN.md`.
 

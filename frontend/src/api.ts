@@ -99,6 +99,7 @@ export const api = {
   // Phase 3 (feature-flagged on the backend)
   features: () => request<import("./types").Features>("/api/features"),
   createPost: (body: {
+    post_type?: "POST" | "STORY";
     description?: string;
     title?: string;
     share_with?: string;
@@ -119,6 +120,11 @@ export const api = {
   markAllNotificationsSeen: () => api.mPost<unknown>("notification/mark-all-seen"),
   stories: (page = 1, limit = 20) => api.mGet<import("./types").StoriesFeed>("v1/app/stories", { page, limit }),
   userStories: (userId: string) => api.mGet<unknown>(`v1/app/users/${userId}/stories`),
+  storyViewers: (publicId: string, page = 1, limit = 20) =>
+    api.mGet<unknown>(`v1/app/stories/${publicId}/viewers`, { page, limit }),
+  userStoryMonths: (userId: string) => api.mGet<unknown>(`v1/app/users/${userId}/stories/months`),
+  userStoryMonth: (userId: string, month: string) => api.mGet<unknown>(`v1/app/users/${userId}/stories/months/${month}`),
+  deletePost: (publicId: string) => api.mDelete<unknown>(`v1/app/post/${publicId}`),
   viewStory: (publicId: string, watchedSeconds = 1) =>
     request<Envelope<unknown>>(`/m/v1/app/stories/${publicId}/view?watchedSeconds=${watchedSeconds}`, { method: "POST" }),
   discover: (params: {
