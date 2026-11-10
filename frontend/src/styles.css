@@ -440,3 +440,7 @@ a { color: var(--link); }
 /* 'View all' link in the notifications panel uses the brand accent like the rest of the design */
 .side-notifs > a { color: var(--accent); text-decoration: none; }
 .side-notifs > a:hover { text-decoration: underline; }
+
+/* /notifications page: spacing between items; seen notifications get no accent border (unread dot only) */
+.notifications { display: flex; flex-direction: column; gap: 0.75rem; }
+.notif.unseen { border-color: var(--border); }
