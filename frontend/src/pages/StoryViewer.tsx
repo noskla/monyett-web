@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ApiError, api } from "../api";
 import Media from "../components/Media";
 import Avatar from "../components/Avatar";
+import Icon from "../components/Icon";
 import { avatarOf } from "../util";
 import type { StoriesFeed, StoryItem, StoryUser } from "../types";
 
@@ -53,7 +54,7 @@ export default function StoryViewer() {
         <Avatar url={avatarOf(user)} name={user.name ?? user.username} size={36} user={user} />
         <strong>{user.name ?? user.username}</strong>
         <span className="muted small">{index + 1}/{user.stories?.length ?? 0}</span>
-        <button className="link-btn" onClick={(e) => { e.stopPropagation(); navigate("/"); }}>✕</button>
+        <button className="link-btn" onClick={(e) => { e.stopPropagation(); navigate("/"); }}><Icon name="times" size={16} /></button>
       </header>
       <div className="story-media">
         <Media media={story.media} />

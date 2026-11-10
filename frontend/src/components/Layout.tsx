@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useSession } from "../hooks";
+import Icon from "./Icon";
 import type { Features } from "../types";
 
 export default function Layout() {
@@ -45,11 +46,12 @@ export default function Layout() {
           <img src="/logo.svg" alt="Monnett" className="brand-logo" />
         </Link>
         <nav className="topnav">
-          <Link to="/">Feed</Link>
-          {features?.discover && <Link to="/discover">Discover</Link>}
+          <Link to="/"><Icon name="home" size={14} /> Feed</Link>
+          {features?.discover && <Link to="/discover"><Icon name="compass" size={14} /> Discover</Link>}
           {features?.notifications && (
             <Link to="/notifications">
-              Notifications{unread !== null && unread > 0 && <span className="unread-pill">{unread}</span>}
+              <Icon name="bell" size={14} /> Notifications
+              {unread !== null && unread > 0 && <span className="unread-pill">{unread}</span>}
             </Link>
           )}
         </nav>
@@ -57,7 +59,7 @@ export default function Layout() {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users or #tag" />
         </form>
         {features?.createPost && (
-          <button className="compose-btn" onClick={() => navigate("/compose")}>+ New post</button>
+          <button className="compose-btn" onClick={() => navigate("/compose")}><Icon name="plus" size={14} /> New post</button>
         )}
         {user?.username && (
           <Link to={`/u/${user.username}`} className="muted">

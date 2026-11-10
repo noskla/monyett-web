@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ApiError, api } from "../api";
+import Icon from "./Icon";
 
 interface LikeButtonProps {
   postId?: string;
@@ -45,7 +46,7 @@ export default function LikeButton({ postId, initialLiked = false, initialCount 
         disabled={pending || !postId}
         title={liked ? "Unlike" : "Like"}
       >
-        {liked ? "♥" : "♡"} {count}
+        <Icon name={liked ? "heart-filled" : "heart"} size={15} /> {count}
       </button>
       {error && <span className="error small"> {error}</span>}
     </span>

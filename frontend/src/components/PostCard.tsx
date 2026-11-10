@@ -5,6 +5,7 @@ import Media from "./Media";
 import LikeButton from "./LikeButton";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
+import Icon from "./Icon";
 import { timeAgo, ringColorOf, badgeOf, tierOf } from "../util";
 
 /** The dominant feed component: author, text, media, counts. */
@@ -44,9 +45,9 @@ export default function PostCard({ post }: { post: Post }) {
       </Link>
       <footer className="post-footer muted small">
         <LikeButton postId={post.publicId} initialLiked={post.is_liked} initialCount={post.likes_count ?? 0} />
-        <span>💬 {post.comments_count ?? 0}</span>
-        <span>🔁 {post.repost_count ?? 0}</span>
-        <span>👁 {post.view_count ?? 0}</span>
+        <span><Icon name="comments" size={15} /> {post.comments_count ?? 0}</span>
+        <span><Icon name="share-alt" size={15} /> {post.repost_count ?? 0}</span>
+        <span><Icon name="eye" size={15} /> {post.view_count ?? 0}</span>
       </footer>
     </article>
   );

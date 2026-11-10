@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ApiError, api } from "../api";
+import Icon from "../components/Icon";
 
 const AUDIENCES = [
   { value: "PUBLIC", label: "Public" },
@@ -66,7 +67,7 @@ export default function Compose() {
             ))}
           </select>
           <label className="file-picker">
-            {file ? file.name : "📷 Add one photo"}
+            {file ? file.name : <><Icon name="camera" size={15} /> Add one photo</>}
             <input
               type="file"
               accept="image/*"

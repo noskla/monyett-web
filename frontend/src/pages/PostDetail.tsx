@@ -8,6 +8,7 @@ import Media from "../components/Media";
 import Avatar from "../components/Avatar";
 import UserBadge from "../components/UserBadge";
 import RichText from "../components/RichText";
+import Icon from "../components/Icon";
 import { useSession } from "../hooks";
 import { timeAgo, avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
 import type { Comment, CommentsPage, Pagination, Post } from "../types";
@@ -107,8 +108,8 @@ export default function PostDetail() {
         <Media media={post.media} />
         <footer className="post-footer muted small">
           <LikeButton postId={post.publicId} initialLiked={post.is_liked} initialCount={post.likes_count ?? 0} />
-          <span>💬 {post.comments_count ?? 0}</span>
-          <span>🔁 {post.repost_count ?? 0}</span>
+          <span><Icon name="comments" size={15} /> {post.comments_count ?? 0}</span>
+          <span><Icon name="share-alt" size={15} /> {post.repost_count ?? 0}</span>
         </footer>
       </article>
 

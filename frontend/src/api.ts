@@ -36,7 +36,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-function qs(params?: Record<string, string | number | undefined>): string {
+function qs(params?: Record<string, string | number | boolean | undefined>): string {
   if (!params) return "";
   const usp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -56,7 +56,7 @@ export const api = {
   logout: () => request<{ ok: boolean }>("/auth/logout", { method: "POST" }),
   session: () => request<Envelope<import("./types").User>>("/auth/session"),
 
-  mGet: <T>(path: string, params?: Record<string, string | number | undefined>) =>
+  mGet: <T>(path: string, params?: Record<string, string | number | boolean | undefined>) =>
     request<Envelope<T>>(`/m/${path}${qs(params)}`),
   mPost: <T>(path: string, body?: unknown) =>
     request<Envelope<T>>(`/m/${path}`, { method: "POST", body: body !== undefined ? JSON.stringify(body) : undefined }),
@@ -116,6 +116,17 @@ export const api = {
   userStories: (userId: string) => api.mGet<unknown>(`v1/app/users/${userId}/stories`),
   viewStory: (publicId: string, watchedSeconds = 1) =>
     request<Envelope<unknown>>(`/m/v1/app/stories/${publicId}/view?watchedSeconds=${watchedSeconds}`, { method: "POST" }),
-  discover: (limit = 20, cursor?: string) =>
-    api.mGet<unknown>("v1/app/feed/discover", { limit, ...(cursor ? { cursor } : {}) }),
+  discover: (params: {
+    limit?: number;
+    cursor?: string;
+    startScope?: "GLOBAL" | "COUNTRY" | "CITY";
+    city?: string;
+    country?: string;
+    area?: string;
+    includeUnlocated?: boolean;
+    lat?: number;
+    lng?: number;
+    radius?: number;
+    members_only?: boolean;
+  }) => api.mGet<unknown>("v1/app/feed/discover", params),
 };

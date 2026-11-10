@@ -5,6 +5,7 @@ import Avatar from "./Avatar";
 import CommentComposer from "./CommentComposer";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
+import Icon from "./Icon";
 import { timeAgo, ringColorOf, badgeOf, tierOf } from "../util";
 
 interface Props {
@@ -73,7 +74,7 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
           <RichText text={comment.comment} />
         </p>
         <div className="comment-actions muted small">
-          <span>♥ {comment.likes_count ?? 0}</span>
+          <span><Icon name="heart" size={13} /> {comment.likes_count ?? 0}</span>
           <button className="link-btn" onClick={() => setShowReply((s) => !s)}>reply</button>
           {(comment.replies_count ?? 0) > 0 && (
             <button className="link-btn" onClick={showReplies ? () => setShowReplies(false) : loadReplies} disabled={loadingReplies}>
