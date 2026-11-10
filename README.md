@@ -12,6 +12,10 @@ Sign in → chronological feed (background new-post check with a manual "-- refr
 
 Out of scope by design: E2EE DMs, push notifications, registration/deletion, payments, admin — see `PLAN.md`.
 
+## Security & hardening
+
+Passcode gate (optional) in front of everything · JWT+refresh only in a Fernet-encrypted HttpOnly cookie (never in JS/logs) · `/m/*` allowlist of official endpoints only · 60 req/min proxy limit with `Retry-After` + full-screen countdown UI on 429 · stricter 10/min limit on login/gate · 25MB upload cap · CSP/nosniff/DENY/referrer headers · HSTS on HTTPS · `no-store` for index.html · in-app "About this client" notice (unofficial, personal use, API may break).
+
 ## Architecture
 
 ```

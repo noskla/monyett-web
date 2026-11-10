@@ -185,6 +185,35 @@ def test_phase2_write_endpoints_allowlisted(app, upstream):
     run(main())
 
 
+def test_auth_endpoints_have_stricter_limit(app, upstream):
+    upstream.json("POST", r"/api/auth/login", {"success": True, "payload": {"jwt": "j", "refresh_token": "r", "user": {"id": 1}}})
+    upstream.json("GET", r"/api/user", {"id": 1, "username": "u"})
+
+    async def main():
+        async with await asgi_client(app) as ac:
+            codes = []
+            last = None
+            for _ in range(12):
+                last = await ac.post("/auth/login", json={"email": "a@b.c", "password": "pw"}, headers=gate_cookie_header())
+                codes.append(last.status_code)
+            assert codes[:10] == [200] * 10
+            assert codes[10:] == [429, 429]
+            assert last.headers.get("retry-after") is not None
+    run(main())
+
+
+def test_proxy_rejects_oversized_body(app):
+    async def main():
+        async with await asgi_client(app) as ac:
+            r = await ac.post(
+                "/m/v1/app/media/upload",
+                headers={**both_cookies(), "Content-Length": str(30 * 1024 * 1024)},
+                content=b"x",
+            )
+            assert r.status_code == 413
+    run(main())
+
+
 def test_rate_limit_guardrail(upstream):
     from app.main import create_app
     from conftest import make_config

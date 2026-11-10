@@ -157,6 +157,8 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
+        if _secure_flag(config, request):
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; img-src 'self' https: data:; media-src 'self' https:; "
             "style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'"
@@ -165,20 +167,29 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
         log.info("%s %s -> %s (%.0fms)", request.method, path, response.status_code, (time.monotonic() - started) * 1000)
         return response
 
-    async def rate_limit(request: Request) -> None:
-        ip = request.client.host if request.client else "unknown"
+    def _window(ip: str, limit: int, window_s: float = 60.0) -> int:
+        """Sliding-window counter; returns retry-after seconds when over limit (0 = ok)."""
         now = time.monotonic()
         dq = windows[ip]
-        while dq and now - dq[0] > 60:
+        while dq and now - dq[0] > window_s:
             dq.popleft()
-        if len(dq) >= config.rate_limit_per_minute:
-            retry_after = max(1, int(60 - (now - dq[0])) + 1)
-            raise HTTPException(
-                status_code=429,
-                detail="rate limit exceeded",
-                headers={"Retry-After": str(retry_after)},
-            )
+        if len(dq) >= limit:
+            return max(1, int(window_s - (now - dq[0])) + 1)
         dq.append(now)
+        return 0
+
+    async def rate_limit(request: Request) -> None:
+        ip = request.client.host if request.client else "unknown"
+        retry = _window(ip, config.rate_limit_per_minute)
+        if retry:
+            raise HTTPException(status_code=429, detail="rate limit exceeded", headers={"Retry-After": str(retry)})
+
+    async def auth_rate_limit(request: Request) -> None:
+        """Stricter limit on credential endpoints (brute-force guard)."""
+        ip = request.client.host if request.client else "unknown"
+        retry = _window("auth:" + ip, 10)
+        if retry:
+            raise HTTPException(status_code=429, detail="too many attempts, slow down", headers={"Retry-After": str(retry)})
 
     def client_from_request(request: Request) -> tuple[bool, sess.SessionData | None]:
         data = sess.unseal_session(config.session_secret, request.cookies.get(sess.SESSION_COOKIE))
@@ -211,7 +222,7 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
             "discover": config.enable_discover,
         }
 
-    @app.post("/auth/gate")
+    @app.post("/auth/gate", dependencies=[Depends(auth_rate_limit)])
     async def gate(body: GateRequest, request: Request, response: Response) -> JSONResponse:
         if not config.client_access_passcode or body.passcode != config.client_access_passcode:
             return JSONResponse({"error": {"status": 401, "message": "invalid passcode", "code": "gate"}}, status_code=401)
@@ -220,7 +231,7 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
                        httponly=True, samesite="lax", secure=_secure_flag(config, request), path="/")
         return out
 
-    @app.post("/auth/login")
+    @app.post("/auth/login", dependencies=[Depends(auth_rate_limit)])
     async def login(body: LoginRequest, request: Request, response: Response) -> JSONResponse:
         client = app.state.monnett
         try:
@@ -286,6 +297,10 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
             return JSONResponse({"error": {"status": 401, "message": "no session", "code": "no_session"}}, status_code=401)
         client = app.state.monnett
         before = (client.access_token, client.refresh_token)
+        # cap proxied upload size (media uploads) to avoid memory abuse
+        cl = request.headers.get("content-length")
+        if cl and int(cl) > 25 * 1024 * 1024:
+            return JSONResponse({"error": {"status": 413, "message": "payload too large (max 25MB)", "code": "too_large"}}, status_code=413)
         body = await request.body()
         headers = {"Content-Type": request.headers["content-type"]} if body and request.headers.get("content-type") else None
         try:

@@ -6,6 +6,7 @@ import Icon from "./Icon";
 import Avatar from "./Avatar";
 import UserBadge from "./UserBadge";
 import NotificationsPanel from "./NotificationsPanel";
+import Notice from "./Notice";
 import { avatarOf, badgeOf, ringColorsOf, tierOf } from "../util";
 import type { Features } from "../types";
 
@@ -14,6 +15,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [features, setFeatures] = useState<Features | null>(null);
+  const [noticeOpen, setNoticeOpen] = useState(false);
 
   useEffect(() => {
     api.features().then(setFeatures).catch(() => setFeatures(null));
@@ -75,8 +77,10 @@ export default function Layout() {
           </nav>
           {features?.notifications && <NotificationsPanel />}
           <p className="muted small side-note">
-            unofficial personal client · API unsupported, may break without notice
+            <button className="link-btn small" onClick={() => setNoticeOpen(true)}>About this client</button>
+            {" · unofficial personal client · API unsupported, may break without notice"}
           </p>
+          {noticeOpen && <Notice onClose={() => setNoticeOpen(false)} />}
         </aside>
       </div>
     </div>

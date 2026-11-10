@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Gate from "./pages/Gate";
 import Login from "./pages/Login";
@@ -11,10 +12,16 @@ import Discover from "./pages/Discover";
 import StoryViewer from "./pages/StoryViewer";
 import Layout from "./components/Layout";
 import RateLimitOverlay from "./components/RateLimitOverlay";
+import Notice, { markNoticeSeen, noticeSeen } from "./components/Notice";
 import { useSession } from "./hooks";
 
 export default function App() {
   const { user, loading, gate } = useSession();
+  const [showNotice, setShowNotice] = useState(false);
+
+  useEffect(() => {
+    if (user && !noticeSeen()) setShowNotice(true);
+  }, [user]);
 
   if (loading) return <div className="center">loading…</div>;
 
@@ -25,6 +32,14 @@ export default function App() {
   return (
     <>
       <RateLimitOverlay />
+      {showNotice && (
+        <Notice
+          onClose={() => {
+            markNoticeSeen();
+            setShowNotice(false);
+          }}
+        />
+      )}
       <Routes>
       <Route path="/gate" element={user && !needsGate ? <Navigate to="/" replace /> : <Gate />} />
       <Route
