@@ -73,7 +73,7 @@ export default function NotificationsPanel() {
               <Icon name={meta.icon} size={15} />
             </span>
             <span className="side-notif-text" title={fullText}>
-              {meta.verb}
+              <strong>{actorName}</strong> {meta.verb}
               {when && <span className="muted small"> · {timeAgo(when)}</span>}
             </span>
             {!n.is_seen && <span className="unread-dot" />}
