@@ -6,7 +6,7 @@ import CommentComposer from "./CommentComposer";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
 import Icon from "./Icon";
-import { timeAgo, exactTime, ringColorOf, badgeOf, tierOf } from "../util";
+import { timeAgo, exactTime, badgeOf, tierOf } from "../util";
 
 interface Props {
   comment: Comment;
@@ -85,7 +85,7 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
 
   return (
     <div className="comment">
-      <Avatar url={author?.avatar_url} name={name} size={32} user={author} ringColor={ringColorOf(author)} />
+      <Avatar url={author?.avatar_url} name={name} size={32} user={author} />
       <div className="comment-body">
         <div className="comment-head">
           <strong>{name}</strong>

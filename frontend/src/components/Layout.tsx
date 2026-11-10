@@ -6,7 +6,7 @@ import Icon from "./Icon";
 import Avatar from "./Avatar";
 import UserBadge from "./UserBadge";
 import NotificationsPanel from "./NotificationsPanel";
-import { avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
+import { avatarOf, badgeOf, tierOf } from "../util";
 import type { Features } from "../types";
 
 export default function Layout() {
@@ -46,7 +46,6 @@ export default function Layout() {
               name={user.name ?? user.username}
               size={26}
               user={user}
-              ringColor={ringColorOf(user)}
             />
             <span className="topbar-username">{user.name ?? user.username}</span>
             <UserBadge badge={badgeOf(user)} tier={tierOf(user)} />

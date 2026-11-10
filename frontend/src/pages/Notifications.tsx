@@ -70,7 +70,7 @@ export default function Notifications() {
             <span className="notif-icon" style={{ background: `${meta.color}22`, color: meta.color }}>
               <Icon name={meta.icon} size={16} />
             </span>
-            <Avatar url={avatarOf(actor)} name={actorName} size={36} user={actor} ringColor={undefined} />
+            <Avatar url={avatarOf(actor)} name={actorName} size={36} user={actor} />
             <span>
               <strong>{actorName}</strong>
               <UserBadge badge={badgeOf(actor)} tier={tierOf(actor)} />

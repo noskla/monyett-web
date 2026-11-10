@@ -6,7 +6,7 @@ import LikeButton from "./LikeButton";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
 import Icon from "./Icon";
-import { timeAgo, exactTime, ringColorOf, badgeOf, tierOf, locationText } from "../util";
+import { timeAgo, exactTime, badgeOf, tierOf, locationText } from "../util";
 
 /** The dominant feed component: author, text, media, counts.
  *  Only the timestamp links to the post page; the rest of the card is not a link. */
@@ -24,7 +24,7 @@ export default function PostCard({ post, authorFallback }: { post: Post; authorF
     <article className="card post-card">
       <header className="post-header">
         <Link to={author?.username ? `/u/${author.username}` : "#"} className="post-author">
-          <Avatar url={avatarUrl} name={authorName} size={40} user={author} ringColor={ringColorOf(author)} />
+          <Avatar url={avatarUrl} name={authorName} size={40} user={author} />
           <span>
             <strong>{authorName}</strong>
             <UserBadge badge={badgeOf(author)} tier={tierOf(author)} />

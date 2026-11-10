@@ -49,14 +49,20 @@ export function avatarOf(user: unknown): string | undefined {
 
 /** The user-chosen avatar ring color (hex), from any of the shapes the API uses. */
 export function ringColorOf(user: unknown): string | undefined {
+  return ringColorsOf(user)[0];
+}
+
+/** All ring colors the API defines for the user (may be a gradient: several entries). */
+export function ringColorsOf(user: unknown): string[] {
   const u = user as Record<string, any> | null;
-  if (!u) return undefined;
-  return (
-    u.avatar_ring_color ??
-    u.avatarRingColor?.hexCode ??
-    u.avatar_ring_colors?.[0] ??
-    u.avatarRingColor?.colors?.[0]
-  );
+  if (!u) return [];
+  const colors: string[] = [];
+  if (typeof u.avatar_ring_color === "string" && u.avatar_ring_color) colors.push(u.avatar_ring_color);
+  if (Array.isArray(u.avatar_ring_colors)) colors.push(...u.avatar_ring_colors.filter((c) => typeof c === "string" && c));
+  const arc = u.avatarRingColor;
+  if (arc?.hexCode) colors.push(arc.hexCode);
+  if (Array.isArray(arc?.colors)) colors.push(...arc.colors.filter((c: any) => typeof c === "string" && c));
+  return [...new Set(colors)];
 }
 
 /** Badge string from any plausible field name (badge, userBadge, ...). */

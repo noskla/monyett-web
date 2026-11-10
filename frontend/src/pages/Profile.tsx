@@ -8,7 +8,7 @@ import UserBadge from "../components/UserBadge";
 import RichText from "../components/RichText";
 import Icon from "../components/Icon";
 import { useSession } from "../hooks";
-import { avatarOf, ringColorOf, badgeOf, tierOf, locationText } from "../util";
+import { avatarOf, badgeOf, tierOf, locationText } from "../util";
 import type { Pagination, Post, User } from "../types";
 
 interface UserStats {
@@ -107,7 +107,7 @@ export default function Profile() {
           name={profile.display_name ?? profile.name ?? profile.username}
           size={96}
           user={profile}
-          ringColor={ringColorOf(profile)}
+         
         />
         <div className="profile-info">
           <div className="profile-names">
