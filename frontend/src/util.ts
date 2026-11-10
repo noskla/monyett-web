@@ -26,11 +26,15 @@ export function exactTime(iso?: string | null): string {
 
 const AVATAR_URL_FIELDS = ["url", "optimalUrl", "originalUrl", "thumbnailUrl", "compressed_url", "compressedUrl", "thumbnail_url"];
 
-/** Avatar URL from any avatar/picture-shaped field the API uses
- *  (avatar_url, profile_picture.*, profilePicture.* — string or MediaFile object). */
+/** Avatar URL from any avatar/picture-shaped field the API uses.
+ *  Direct string fields (avatar_url / avatarUrl) win over nested picture
+ *  objects, whose variants may still be processing. */
 export function avatarOf(user: unknown): string | undefined {
   const u = user as Record<string, any> | null;
   if (!u) return undefined;
+  for (const k of ["avatar_url", "avatarUrl", "avatar"]) {
+    if (typeof u[k] === "string" && u[k]) return u[k];
+  }
   for (const [k, v] of Object.entries(u)) {
     if (!/avatar|picture/i.test(k)) continue;
     if (typeof v === "string" && v) return v;
