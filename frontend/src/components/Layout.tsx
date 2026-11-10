@@ -45,30 +45,42 @@ export default function Layout() {
         <Link to="/" className="brand">
           <img src="/logo.svg" alt="Monnett" className="brand-logo" />
         </Link>
-        <nav className="topnav">
-          <Link to="/"><Icon name="home" size={14} /> Feed</Link>
-          {features?.discover && <Link to="/discover"><Icon name="compass" size={14} /> Discover</Link>}
-          {features?.notifications && (
-            <Link to="/notifications">
-              <Icon name="bell" size={14} /> Notifications
-              {unread !== null && unread > 0 && <span className="unread-pill">{unread}</span>}
-            </Link>
-          )}
-        </nav>
-        <form className="topbar-search" onSubmit={onSearch}>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users or #tag" />
-        </form>
-        {features?.createPost && (
-          <button className="compose-btn" onClick={() => navigate("/compose")}><Icon name="plus" size={14} /> New post</button>
-        )}
         {user?.username && (
-          <Link to={`/u/${user.username}`} className="muted">
+          <Link to={`/u/${user.username}`} className="muted topbar-user">
             @{user.username}
           </Link>
         )}
-        <button onClick={onLogout}>Log out</button>
+        <button onClick={onLogout}><Icon name="exit" size={14} /> Log out</button>
       </header>
-      <Outlet />
+      <div className="layout-grid">
+        <main className="main-col">
+          <Outlet />
+        </main>
+        <aside className="sidebar">
+          <nav className="side-nav card">
+            <Link to="/"><Icon name="home" size={16} /> Feed</Link>
+            {features?.discover && <Link to="/discover"><Icon name="compass" size={16} /> Discover</Link>}
+            {features?.notifications && (
+              <Link to="/notifications">
+                <Icon name="bell" size={16} /> Notifications
+                {unread !== null && unread > 0 && <span className="unread-pill">{unread}</span>}
+              </Link>
+            )}
+            <form className="side-search" onSubmit={onSearch}>
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users or #tag" />
+              <button type="submit" aria-label="search"><Icon name="search" size={15} /></button>
+            </form>
+            {features?.createPost && (
+              <button className="compose-btn" onClick={() => navigate("/compose")}>
+                <Icon name="plus" size={15} /> New post
+              </button>
+            )}
+          </nav>
+          <p className="muted small side-note">
+            unofficial personal client · API unsupported, may break without notice
+          </p>
+        </aside>
+      </div>
     </div>
   );
 }
