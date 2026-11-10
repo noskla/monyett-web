@@ -9,9 +9,9 @@ from conftest import TEST_SECRET
 def mock_login(upstream, jwt="jwt-1", refresh="r-1", user=None):
     upstream.json("POST", r"/api/auth/login", {
         "success": True, "code": "OK",
-        "payload": {"jwt": jwt, "refresh_token": refresh, "user": user or {"id": 7, "username": "lena"}},
+        "payload": {"jwt": jwt, "refresh_token": refresh, "user": user or {"id": 7, "username": "testuser"}},
     })
-    upstream.json("GET", r"/api/user", user or {"id": 7, "username": "lena", "publicId": "pub-7"})
+    upstream.json("GET", r"/api/user", user or {"id": 7, "username": "testuser", "publicId": "pub-7"})
 
 
 def cookie_from_response(r, name) -> str:
@@ -28,7 +28,7 @@ def test_login_sets_encrypted_session_cookie_and_hydrates_user(app, upstream):
         async with await asgi_client(app) as ac:
             r = await ac.post("/auth/login", json={"email": "a@b.c", "password": "pw"}, headers=gate_cookie_header())
             assert r.status_code == 200
-            assert r.json()["data"]["username"] == "lena"
+            assert r.json()["data"]["username"] == "testuser"
             cookie = cookie_from_response(r, sess.SESSION_COOKIE)
             assert "HttpOnly" in r.headers.get_list("set-cookie")[0]
             raw = cookie.split("=", 1)[1]
@@ -55,7 +55,7 @@ def test_login_bad_credentials_returns_401(app, upstream):
 
 
 def test_session_endpoint_hydrates_user(app, upstream):
-    upstream.json("GET", r"/api/user", {"id": 7, "username": "lena"})
+    upstream.json("GET", r"/api/user", {"id": 7, "username": "testuser"})
 
     async def main():
         async with await asgi_client(app) as ac:
