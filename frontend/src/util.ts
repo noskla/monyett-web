@@ -107,14 +107,14 @@ export function notifMeta(n: Record<string, any> | null | undefined): NotifMeta 
     verb: (typeof n.message === "string" && n.message.trim()) || typeish.trim().toLowerCase() || "notification",
     color: "var(--muted)",
   };
-  if (hay.includes("REPLY")) return { icon: "comment-1-text", verb: "replied to your comment", color: "var(--link)" };
+  if (hay.includes("REPL")) return { icon: "comment-1-text", verb: "replied to your comment", color: "var(--link)" };
   if (hay.includes("LIKE") || hay.includes("LOVE")) return { icon: "heart", verb: "liked your post", color: "var(--accent)" };
   if (hay.includes("COMMENT")) return { icon: "comment-1", verb: "commented on your post", color: "var(--link)" };
   if (hay.includes("FOLLOW")) return { icon: "user-4", verb: "started following you", color: "#6fdcb0" };
   if (hay.includes("REPOST") || hay.includes("SHARE")) return { icon: "share-1", verb: "reposted your post", color: "var(--link)" };
   if (hay.includes("MENTION") || hay.includes("TAG")) return { icon: "user-4", verb: "mentioned you", color: "#ffd257" };
-  if (hay.includes("STORY")) return { icon: "camera-1", verb: "posted a story", color: "var(--link)" };
   if (hay.includes("VIEW")) return { icon: "eye", verb: "viewed your story", color: "var(--muted)" };
+  if (hay.includes("STORY")) return { icon: "camera-1", verb: "posted a story", color: "var(--link)" };
   if (hay.includes("STAR") || hay.includes("FAVORITE")) return { icon: "star-fat", verb: "starred your post", color: "#ffd257" };
   return fallback;
 }
