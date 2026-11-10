@@ -306,10 +306,18 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
         if DIST_DIR.is_dir():
             candidate = DIST_DIR / full_path
             if full_path and candidate.is_file():
-                return FileResponse(candidate)
+                # hashed build assets are immutable; everything else revalidates
+                resp = FileResponse(candidate)
+                if full_path.startswith("assets/"):
+                    resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+                else:
+                    resp.headers["Cache-Control"] = "no-cache"
+                return resp
             index = DIST_DIR / "index.html"
             if index.is_file():
-                return FileResponse(index)
+                resp = FileResponse(index)
+                resp.headers["Cache-Control"] = "no-store"  # always pick up new builds
+                return resp
         return HTMLResponse(
             "<h1>monyett-web backend</h1><p>Frontend not built yet. "
             "Run <code>npm run build</code> in frontend/ (Phase 1+).</p>"
