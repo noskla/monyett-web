@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { badgeOf, ringColorsOf, tierOf } from "../util";
+import { badgeOf, isHumanBadge, ringColorsOf, tierOf } from "../util";
 
 interface AvatarProps {
   url?: string | null;
@@ -11,13 +11,15 @@ interface AvatarProps {
 
 const MEMBER_COLOR = "#0089f7";
 const MEMBER_PLUS_COLOR = "#ffd257";
-const ACCENT = "#ff384f";
+const ACCENT = "#ff384f"; // brand pink, used when the API defines no ring color
 
-/** Avatar for Member/Member+ users: colored border (single color or gradient,
- *  as defined by the API in avatar_ring_color(s)/avatarRingColor) + checkmark
- *  in the bottom-right corner, sized relative to the avatar.
- *  Non-members: plain avatar — no border, no checkmark. */
+/** Avatar with ring + checkmark for badged users:
+ *  - border color/gradient comes from the API (avatar_ring_color(s) /
+ *    avatarRingColor); members without one fall back to the tier color
+ *  - checkmark (bottom-right, scales with avatar) for human/member badges
+ *  - users with no badge and no API ring color: plain avatar */
 export default function Avatar({ url, name, size = 40, user }: AvatarProps) {
+  const human = isHumanBadge(user);
   const tier = tierOf(user);
   const badge = badgeOf(user);
   const hay = `${tier ?? ""} ${badge ?? ""}`.toUpperCase();
@@ -25,19 +27,20 @@ export default function Avatar({ url, name, size = 40, user }: AvatarProps) {
   const isMember = isMemberPlus || hay.includes("MEMBER") || hay.includes("MEMBERSHIP") || hay.includes("PAID") || hay.includes("SUBSCRIBER");
   const tierColor = isMemberPlus ? MEMBER_PLUS_COLOR : MEMBER_COLOR;
 
-  const ringColors = isMember ? ringColorsOf(user) : [];
-  const ringStyle: CSSProperties | undefined = !isMember
-    ? undefined
-    : ringColors.length > 1
+  const ringColors = ringColorsOf(user);
+  const showCheck = human || isMember;
+  const ringStyle: CSSProperties | undefined = ringColors.length
+    ? ringColors.length > 1
       ? {
           // gradient border: transparent border + two-layer background
           border: "2px solid transparent",
           background: `linear-gradient(var(--bg), var(--bg)) padding-box, linear-gradient(135deg, ${ringColors.join(", ")}) border-box`,
         }
-      : { borderColor: ringColors[0] ?? tierColor };
-
-  const showCheck = isMember;
-  const checkColor = tierColor;
+      : { borderColor: ringColors[0] }
+    : isMember
+      ? { borderColor: tierColor }
+      : undefined;
+  const checkColor = ringColors[0] ?? (isMember ? tierColor : ACCENT);
   const checkSize = Math.max(12, Math.round(size * 0.26));
 
   const inner = url ? (
@@ -56,7 +59,7 @@ export default function Avatar({ url, name, size = 40, user }: AvatarProps) {
         <span
           className="avatar-check"
           style={{
-            background: checkColor || ACCENT,
+            background: checkColor,
             width: checkSize,
             height: checkSize,
             fontSize: Math.round(checkSize * 0.66),
