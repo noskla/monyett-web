@@ -12,14 +12,22 @@ export default function App() {
   const { user, loading, gate } = useSession();
 
   if (loading) return <div className="center">loading…</div>;
-  if (gate === "gate") return <Navigate to="/gate" replace />;
+
+  // NOTE: never short-circuit to <Navigate> before <Routes> — that would
+  // unmount the very page we redirect to (e.g. the gate page itself).
+  const needsGate = gate === "gate";
 
   return (
     <Routes>
-      <Route path="/gate" element={user ? <Navigate to="/" replace /> : <Gate />} />
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/gate" element={user && !needsGate ? <Navigate to="/" replace /> : <Gate />} />
       <Route
-        element={user ? <Layout /> : <Navigate to="/login" replace />}
+        path="/login"
+        element={needsGate ? <Navigate to="/gate" replace /> : user ? <Navigate to="/" replace /> : <Login />}
+      />
+      <Route
+        element={
+          needsGate ? <Navigate to="/gate" replace /> : user ? <Layout /> : <Navigate to="/login" replace />
+        }
       >
         <Route path="/" element={<Feed />} />
         <Route path="/post/:publicId" element={<PostDetail />} />

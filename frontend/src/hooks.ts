@@ -56,6 +56,31 @@ export interface SessionState {
   logout: () => Promise<void>;
 }
 
+// One shared bootstrap per page load: App and Layout both call useSession(),
+// so without this every mount fires its own /auth/session request.
+let sessionPromise: Promise<{ user: User | null; gate: "gate" | "no_session" | null }> | null = null;
+
+function bootstrapSession() {
+  if (!sessionPromise) {
+    sessionPromise = (async () => {
+      try {
+        const res = await api.session();
+        return { user: res.data, gate: null };
+      } catch (e) {
+        const err = e as ApiError;
+        return { user: null, gate: err.code === "gate" ? ("gate" as const) : ("no_session" as const) };
+      }
+    })();
+  }
+  return sessionPromise;
+}
+
+/** Test-only: forget the cached bootstrap so a fresh one runs (browser code
+ *  reloads the page instead, which achieves the same). */
+export function __resetSessionForTests() {
+  sessionPromise = null;
+}
+
 export function useSession(): SessionState {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,22 +89,13 @@ export function useSession(): SessionState {
 
   useEffect(() => {
     mounted.current = true;
-    (async () => {
-      try {
-        const res = await api.session();
-        if (mounted.current) {
-          setUser(res.data);
-          setGate(null);
-        }
-      } catch (e) {
-        if (mounted.current) {
-          const err = e as ApiError;
-          setGate(err.code === "gate" ? "gate" : "no_session");
-        }
-      } finally {
-        if (mounted.current) setLoading(false);
+    bootstrapSession().then((res) => {
+      if (mounted.current) {
+        setUser(res.user);
+        setGate(res.gate);
+        setLoading(false);
       }
-    })();
+    });
     return () => {
       mounted.current = false;
     };
