@@ -129,3 +129,20 @@ button:disabled { opacity: 0.5; cursor: default; }
 .search-form { display: flex; gap: 0.5rem; }
 .search-form input { flex: 1; }
 .user-result { flex-direction: row; align-items: center; gap: 0.75rem; color: var(--text); text-decoration: none; padding: 0.75rem 1rem; }
+
+/* --- badges --- */
+.badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.22rem 0.45rem;
+  border-radius: 999px;
+  vertical-align: middle;
+  margin-left: 0.15rem;
+}
+.badge-member { background: rgba(79, 124, 255, 0.18); color: #8fb0ff; border: 1px solid rgba(79, 124, 255, 0.5); }
+.badge-member-plus { background: rgba(255, 200, 60, 0.16); color: #ffd257; border: 1px solid rgba(255, 200, 60, 0.55); }
+.badge-verified { background: rgba(79, 124, 255, 0.18); color: #8fb0ff; border: 1px solid rgba(79, 124, 255, 0.5); }
+.badge-human { background: rgba(80, 200, 140, 0.14); color: #6fdcb0; border: 1px solid rgba(80, 200, 140, 0.45); }
+.badge-other { background: var(--border); color: var(--muted); }

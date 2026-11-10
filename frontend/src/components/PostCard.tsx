@@ -3,6 +3,7 @@ import type { Post } from "../types";
 import Avatar from "./Avatar";
 import Media from "./Media";
 import LikeButton from "./LikeButton";
+import UserBadge from "./UserBadge";
 import { timeAgo } from "../util";
 
 /** The dominant feed component: author, text, media, counts. */
@@ -21,6 +22,7 @@ export default function PostCard({ post }: { post: Post }) {
           <Avatar url={avatarUrl} name={authorName} size={40} />
           <span>
             <strong>{authorName}</strong>
+            <UserBadge badge={author?.badge} tier={author?.effectiveTier} />
             {author?.username && <span className="muted"> @{author.username}</span>}
           </span>
         </Link>

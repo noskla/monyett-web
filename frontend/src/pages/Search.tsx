@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ApiError, api } from "../api";
 import PostCard from "../components/PostCard";
 import Avatar from "../components/Avatar";
+import UserBadge from "../components/UserBadge";
 import { avatarOf } from "../util";
 import type { Post, User } from "../types";
 
@@ -87,6 +88,7 @@ export default function Search() {
               <Avatar url={avatarOf(u)} name={u.display_name ?? u.name ?? u.username} size={40} />
               <span>
                 <strong>{u.display_name ?? u.name ?? u.username}</strong>
+                <UserBadge badge={u.badge} tier={u.effectiveTier} />
                 {u.username && <span className="muted"> @{u.username}</span>}
               </span>
             </Link>

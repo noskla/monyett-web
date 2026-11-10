@@ -3,6 +3,7 @@ import { ApiError, api } from "../api";
 import type { Comment } from "../types";
 import Avatar from "./Avatar";
 import CommentComposer from "./CommentComposer";
+import UserBadge from "./UserBadge";
 import { timeAgo } from "../util";
 
 interface Props {
@@ -63,6 +64,7 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
       <div className="comment-body">
         <div className="comment-head">
           <strong>{name}</strong>
+          <UserBadge badge={author?.badge} tier={author?.effectiveTier} />
           {author?.username && <span className="muted"> @{author.username}</span>}
           <span className="muted small"> {timeAgo(comment.created_at)}</span>
         </div>

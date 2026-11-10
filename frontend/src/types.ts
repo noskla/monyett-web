@@ -31,6 +31,8 @@ export interface User {
   avatar_url?: string;
   profile_picture?: MediaFile;
   verified?: boolean;
+  badge?: string;
+  effectiveTier?: string;
   is_following?: boolean;
   isFollowing?: boolean;
   is_follower?: boolean;

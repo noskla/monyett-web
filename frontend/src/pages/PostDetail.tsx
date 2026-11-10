@@ -6,6 +6,7 @@ import CommentComposer from "../components/CommentComposer";
 import LikeButton from "../components/LikeButton";
 import Media from "../components/Media";
 import Avatar from "../components/Avatar";
+import UserBadge from "../components/UserBadge";
 import { useSession } from "../hooks";
 import { timeAgo, avatarOf } from "../util";
 import type { Comment, CommentsPage, Pagination, Post } from "../types";
@@ -86,6 +87,7 @@ export default function PostDetail() {
             <Avatar url={avatarOf(author)} name={authorName} size={40} />
             <span>
               <strong>{authorName}</strong>
+              <UserBadge badge={author?.badge} tier={author?.effectiveTier} />
               {author?.username && <span className="muted"> @{author.username}</span>}
             </span>
           </span>

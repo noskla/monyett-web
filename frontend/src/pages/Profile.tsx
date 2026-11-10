@@ -4,6 +4,7 @@ import { ApiError, api } from "../api";
 import Avatar from "../components/Avatar";
 import PostCard from "../components/PostCard";
 import FollowButton from "../components/FollowButton";
+import UserBadge from "../components/UserBadge";
 import { useSession } from "../hooks";
 import { avatarOf } from "../util";
 import type { Pagination, Post, User } from "../types";
@@ -89,7 +90,10 @@ export default function Profile() {
       <header className="card profile-header">
         <Avatar url={avatarOf(profile)} name={profile.display_name ?? profile.name ?? profile.username} size={72} />
         <div className="profile-info">
-          <h2>{profile.display_name ?? profile.name ?? profile.username}</h2>
+          <h2>
+            {profile.display_name ?? profile.name ?? profile.username}{" "}
+            <UserBadge badge={profile.badge} tier={profile.effectiveTier} />
+          </h2>
           <p className="muted">@{profile.username}</p>
           {profile.bio && <p className="bio">{profile.bio}</p>}
           <p className="muted small">
