@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, api } from "../api";
 import PostCard from "../components/PostCard";
+import StoriesBar from "../components/StoriesBar";
 import type { FeedResponse, Pagination, TimelineGroup } from "../types";
 
 const PAGE_SIZE = 20;
@@ -47,6 +48,7 @@ export default function Feed() {
         </button>
       </div>
       {error && <p className="error">{error}</p>}
+      <StoriesBar />
       {groups.map((g) => (
         <section key={g.date_key ?? Math.random()}>
           {g.date_key && <h3 className="muted date-key">{g.date_key}</h3>}

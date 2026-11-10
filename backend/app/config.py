@@ -33,6 +33,11 @@ class Config:
     rate_limit_per_minute: int
     environment: str
     cookie_secure: bool | None  # None = auto-detect per request
+    # Phase 3 feature flags (PLAN.md §4): disable any via ENABLE_X=false
+    enable_create_post: bool = True
+    enable_notifications: bool = True
+    enable_stories: bool = True
+    enable_discover: bool = True
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -53,4 +58,8 @@ class Config:
             rate_limit_per_minute=int(os.getenv("RATE_LIMIT_PER_MINUTE", "60")),
             environment=environment,
             cookie_secure=_as_bool(os.getenv("COOKIE_SECURE")),
+            enable_create_post=_as_bool(os.getenv("ENABLE_CREATE_POST", "true")) is not False,
+            enable_notifications=_as_bool(os.getenv("ENABLE_NOTIFICATIONS", "true")) is not False,
+            enable_stories=_as_bool(os.getenv("ENABLE_STORIES", "true")) is not False,
+            enable_discover=_as_bool(os.getenv("ENABLE_DISCOVER", "true")) is not False,
         )

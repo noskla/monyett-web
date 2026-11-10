@@ -171,3 +171,31 @@ button:disabled { opacity: 0.5; cursor: default; }
 .auth-logo { height: 44px; margin-bottom: 0.25rem; }
 button:hover:not(:disabled) { background: var(--accent-hover); }
 a { color: var(--link); }
+
+/* --- Phase 3 --- */
+.topnav { display: flex; gap: 1rem; }
+.topnav a { color: var(--muted); text-decoration: none; }
+.topnav a:hover { color: var(--text); }
+.unread-pill { background: var(--accent); color: #fff; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.75rem; margin-left: 0.3rem; }
+.unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-left: auto; }
+.compose-btn { white-space: nowrap; }
+.compose-form textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 0.7rem 0.9rem; font: inherit; resize: vertical; }
+.compose-row { display: flex; gap: 0.5rem; align-items: center; }
+.compose-row select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem; }
+.file-picker { border: 1px dashed var(--border); border-radius: 8px; padding: 0.4rem 0.8rem; cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+.file-picker input { display: none; }
+.compose-preview { max-width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+.notif { flex-direction: row; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; }
+.notif a { color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.75rem; flex: 1; }
+.notif.unseen { border-color: var(--accent); }
+.stories-bar { display: flex; gap: 1rem; overflow-x: auto; padding: 0.5rem 0; }
+.story-avatar { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; text-decoration: none; width: 64px; flex-shrink: 0; }
+.story-ring { border: 2px solid var(--border); border-radius: 50%; padding: 2px; display: inline-flex; }
+.story-ring.unseen { border-color: var(--accent); }
+.story-name { max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.story-viewer { max-width: 480px; margin: 0 auto; cursor: pointer; }
+.story-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0; }
+.story-head .link-btn { margin-left: auto; font-size: 1rem; }
+.story-media { background: #000; border-radius: 12px; overflow: hidden; min-height: 300px; display: flex; flex-direction: column; }
+.story-media .media-item { border: none; border-radius: 0; }
+.story-caption { padding: 0.75rem; margin: 0; }

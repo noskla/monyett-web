@@ -102,3 +102,50 @@ export interface Envelope<T> {
 export interface ApiErrorBody {
   error: { status: number; message: string; code?: string };
 }
+
+export interface StoryItem {
+  id?: number;
+  publicId?: string;
+  description?: string;
+  media?: MediaFile[];
+  is_viewed?: boolean;
+  created_at?: string;
+}
+
+export interface StoryUser {
+  id?: number;
+  publicId?: string;
+  username?: string;
+  name?: string;
+  profile_picture?: MediaFile;
+  avatar_url?: string;
+  has_unseen?: boolean;
+  ring_color?: string;
+  ring_colors?: string[];
+  badge?: string;
+  stories?: StoryItem[];
+}
+
+export interface StoriesFeed {
+  users: StoryUser[];
+  current_user?: StoryUser;
+  meta?: Pagination;
+}
+
+export interface Notification {
+  id?: number | string;
+  type?: string;
+  message?: string;
+  is_seen?: boolean;
+  created_at?: string;
+  createdAt?: string;
+  actor?: User;
+  post?: Post;
+}
+
+export interface Features {
+  createPost: boolean;
+  notifications: boolean;
+  stories: boolean;
+  discover: boolean;
+}

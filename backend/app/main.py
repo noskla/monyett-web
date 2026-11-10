@@ -62,8 +62,24 @@ _ALLOWED: list[tuple[str, re.Pattern[str]]] = [
     ("POST", re.compile(rf"^/api/notification/mark-all-seen$")),
     ("GET", re.compile(rf"^/api/v1/app/stories$")),
     ("POST", re.compile(rf"^/api/v1/app/stories/{_ID}/view$")),
+    ("GET", re.compile(rf"^/api/v1/app/users/{_ID}/stories$")),
     ("POST", re.compile(rf"^/api/v1/app/media/upload$")),
 ]
+
+# Phase 3 feature flags: path pattern -> config flag (PLAN.md §4 Phase 3)
+_FEATURE_FLAGS = [
+    (re.compile(r"^/api/v1/app/(post/create|media/upload)$"), "enable_create_post"),
+    (re.compile(r"^/api/notification"), "enable_notifications"),
+    (re.compile(rf"^/api/v1/app/(stories|users/{_ID}/stories)"), "enable_stories"),
+    (re.compile(r"^/api/v1/app/feed/discover$"), "enable_discover"),
+]
+
+
+def feature_enabled(config: Config, path: str) -> bool:
+    for rx, flag in _FEATURE_FLAGS:
+        if rx.match(path):
+            return getattr(config, flag)
+    return True
 
 # Backstop: even if a pattern above ever matches something sensitive, these
 # substrings are always refused. /api/auth/* is handled by /auth/* here, never proxied.
@@ -176,6 +192,16 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
         except MonnettApiError as exc:
             return JSONResponse({"ok": False, "error": exc.message})
 
+    @app.get("/api/features")
+    async def features() -> dict:
+        """Phase 3 feature flags, so the SPA can hide disabled features."""
+        return {
+            "createPost": config.enable_create_post,
+            "notifications": config.enable_notifications,
+            "stories": config.enable_stories,
+            "discover": config.enable_discover,
+        }
+
     @app.post("/auth/gate")
     async def gate(body: GateRequest, request: Request, response: Response) -> JSONResponse:
         if not config.client_access_passcode or body.passcode != config.client_access_passcode:
@@ -244,6 +270,8 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
         upstream_path = "/api/" + path
         if not is_allowed(request.method, upstream_path):
             return JSONResponse({"error": {"status": 404, "message": "endpoint not allowlisted", "code": "not_allowlisted"}}, status_code=404)
+        if not feature_enabled(config, upstream_path):
+            return JSONResponse({"error": {"status": 404, "message": "feature disabled by config", "code": "feature_disabled"}}, status_code=404)
         ok, data = client_from_request(request)
         if not ok or not data:
             return JSONResponse({"error": {"status": 401, "message": "no session", "code": "no_session"}}, status_code=401)

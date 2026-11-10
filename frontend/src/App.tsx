@@ -5,6 +5,10 @@ import Feed from "./pages/Feed";
 import PostDetail from "./pages/PostDetail";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
+import Compose from "./pages/Compose";
+import Notifications from "./pages/Notifications";
+import Discover from "./pages/Discover";
+import StoryViewer from "./pages/StoryViewer";
 import Layout from "./components/Layout";
 import { useSession } from "./hooks";
 
@@ -33,6 +37,10 @@ export default function App() {
         <Route path="/post/:publicId" element={<PostDetail />} />
         <Route path="/u/:username" element={<Profile />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/compose" element={<Compose />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/discover" element={<Discover />} />
+        <Route path="/stories/:publicId" element={<StoryViewer />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

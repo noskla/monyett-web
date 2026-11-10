@@ -20,7 +20,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     credentials: "same-origin",
     ...init,
     headers: {
-      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      // only set JSON content-type for string bodies; FormData sets its own multipart boundary
+      ...(typeof init?.body === "string" ? { "Content-Type": "application/json" } : {}),
       ...(init?.headers ?? {}),
     },
   });
@@ -94,4 +95,27 @@ export const api = {
     api.mGet<unknown>("search", { keyword, page, pageSize, type: "user" }),
   searchTag: (tag: string, page = 1, limit = 20) =>
     api.mGet<{ posts: import("./types").Post[]; meta?: import("./types").Pagination }>("v1/app/search/posts-by-tag", { tag, page, limit }),
+
+  // Phase 3 (feature-flagged on the backend)
+  features: () => request<import("./types").Features>("/api/features"),
+  createPost: (body: { description?: string; title?: string; share_with?: string; media_count?: number }) =>
+    api.mPost<string>("v1/app/post/create", { post_type: "POST", ...body }),
+  uploadMedia: (postId: string, file: File, mediaIndex = 0) => {
+    const fd = new FormData();
+    fd.append("postId", postId);
+    fd.append("mediaIndex", String(mediaIndex));
+    fd.append("file", file);
+    return request<Envelope<unknown>>(`/m/v1/app/media/upload`, { method: "POST", body: fd });
+  },
+  notifications: (page = 1, size = 20, filter?: string) =>
+    api.mGet<unknown>("notification", { page, pagination_size: size, ...(filter ? { filter } : {}) }),
+  notificationCount: () => api.mGet<unknown>("notification-count"),
+  markNotificationSeen: (id: string | number) => api.mPost<unknown>(`notification/seen/${id}`),
+  markAllNotificationsSeen: () => api.mPost<unknown>("notification/mark-all-seen"),
+  stories: (page = 1, limit = 20) => api.mGet<import("./types").StoriesFeed>("v1/app/stories", { page, limit }),
+  userStories: (userId: string) => api.mGet<unknown>(`v1/app/users/${userId}/stories`),
+  viewStory: (publicId: string, watchedSeconds = 1) =>
+    request<Envelope<unknown>>(`/m/v1/app/stories/${publicId}/view?watchedSeconds=${watchedSeconds}`, { method: "POST" }),
+  discover: (limit = 20, cursor?: string) =>
+    api.mGet<unknown>("v1/app/feed/discover", { limit, ...(cursor ? { cursor } : {}) }),
 };
