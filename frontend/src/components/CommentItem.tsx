@@ -6,7 +6,7 @@ import CommentComposer from "./CommentComposer";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
 import Icon from "./Icon";
-import { timeAgo, ringColorOf, badgeOf, tierOf } from "../util";
+import { timeAgo, exactTime, ringColorOf, badgeOf, tierOf } from "../util";
 
 interface Props {
   comment: Comment;
@@ -68,7 +68,7 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
           <strong>{name}</strong>
           <UserBadge badge={badgeOf(author)} tier={tierOf(author)} />
           {author?.username && <span className="muted"> @{author.username}</span>}
-          <span className="muted small"> {timeAgo(comment.created_at)}</span>
+          <span className="muted small" title={exactTime(comment.created_at)}> {timeAgo(comment.created_at)}</span>
         </div>
         <p className="comment-text">
           <RichText text={comment.comment} />

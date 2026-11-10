@@ -60,7 +60,10 @@ export default function NotificationsPanel() {
         const row = (
           <>
             <Avatar url={avatarOf(actor)} name={actor?.name ?? actor?.username} size={28} user={actor} />
-            <span className="side-notif-text">
+            <span
+              className="side-notif-text"
+              title={`${actor?.name ?? actor?.username ?? "Someone"} ${n.message ?? n.type ?? ""} ${when ? timeAgo(when) : ""}`}
+            >
               <strong>{actor?.name ?? actor?.username ?? "Someone"}</strong>{" "}
               <span className="muted">{n.message ?? n.type ?? ""}</span>
               {when && <span className="muted small"> · {timeAgo(when)}</span>}

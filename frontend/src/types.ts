@@ -53,6 +53,7 @@ export interface Post {
   post_type?: string;
   createdAt?: string;
   publishedAt?: string;
+  location?: { city?: string; country?: string; address?: string; area?: string } | null;
   posted_by?: User;
   media?: MediaFile[];
   likes_count?: number;

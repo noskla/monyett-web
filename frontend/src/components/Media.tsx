@@ -1,8 +1,9 @@
 import { useState } from "react";
 import Icon from "./Icon";
+import Lightbox from "./Lightbox";
 import type { MediaFile } from "../types";
 
-function MediaItem({ m }: { m: MediaFile }) {
+function MediaItem({ m, onZoom }: { m: MediaFile; onZoom?: (src: string) => void }) {
   const src = m.url ?? m.compressed_url;
   if (!src) return null;
   if (m.mime?.startsWith("video/")) {
@@ -12,7 +13,20 @@ function MediaItem({ m }: { m: MediaFile }) {
       </video>
     );
   }
-  return <img className="media-item" src={m.compressed_url ?? src} alt="" loading="lazy" />;
+  const imgSrc = m.compressed_url ?? src;
+  return (
+    <img
+      className="media-item zoomable"
+      src={imgSrc}
+      alt=""
+      loading="lazy"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onZoom?.(src); // zoom the original, not the compressed variant
+      }}
+    />
+  );
 }
 
 /** Renders post media straight from the CDN URLs in the payload.
@@ -20,12 +34,14 @@ function MediaItem({ m }: { m: MediaFile }) {
  *  Multiple items become a carousel (prev/next + dots + counter). */
 export default function Media({ media }: { media?: MediaFile[] }) {
   const [index, setIndex] = useState(0);
+  const [zoomSrc, setZoomSrc] = useState<string | null>(null);
   if (!media || media.length === 0) return null;
 
   if (media.length === 1) {
     return (
       <div className="media">
-        <MediaItem m={media[0]} />
+        <MediaItem m={media[0]} onZoom={setZoomSrc} />
+        {zoomSrc && <Lightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
       </div>
     );
   }
@@ -37,7 +53,7 @@ export default function Media({ media }: { media?: MediaFile[] }) {
   return (
     <div className="carousel">
       <div className="carousel-stage">
-        <MediaItem m={media[safe]} />
+        <MediaItem m={media[safe]} onZoom={setZoomSrc} />
         <button className="carousel-btn prev" onClick={(e) => { e.preventDefault(); prev(); }} aria-label="previous">
           <Icon name="chevron-left" size={18} />
         </button>
@@ -56,6 +72,7 @@ export default function Media({ media }: { media?: MediaFile[] }) {
           />
         ))}
       </div>
+      {zoomSrc && <Lightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
     </div>
   );
 }

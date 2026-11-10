@@ -13,6 +13,17 @@ export function timeAgo(iso?: string | null): string {
   return new Date(then).toLocaleDateString();
 }
 
+/** Exact local date+time for hover tooltips, e.g. "10 Nov 2026, 14:32". */
+export function exactTime(iso?: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString(undefined, {
+    day: "numeric", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+
 export function avatarOf(user: unknown): string | undefined {
   const u = user as {
     avatar_url?: string;

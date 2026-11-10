@@ -10,7 +10,7 @@ import UserBadge from "../components/UserBadge";
 import RichText from "../components/RichText";
 import Icon from "../components/Icon";
 import { useSession } from "../hooks";
-import { timeAgo, avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
+import { timeAgo, exactTime, avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
 import type { Comment, CommentsPage, Pagination, Post } from "../types";
 
 /** Full post + comments. Writes (comment/reply/delete/like) are optimistic
@@ -93,7 +93,9 @@ export default function PostDetail() {
               {author?.username && <span className="muted"> @{author.username}</span>}
             </span>
           </span>
-          <span className="muted small">{timeAgo(post.publishedAt ?? post.createdAt)}</span>
+          <span className="muted small" title={exactTime(post.publishedAt ?? post.createdAt)}>
+            {timeAgo(post.publishedAt ?? post.createdAt)}
+          </span>
         </header>
         {post.title && (
           <h3 className="post-title">
