@@ -4,6 +4,7 @@ import Avatar from "./Avatar";
 import Media from "./Media";
 import LikeButton from "./LikeButton";
 import UserBadge from "./UserBadge";
+import RichText from "./RichText";
 import { timeAgo } from "../util";
 
 /** The dominant feed component: author, text, media, counts. */
@@ -29,8 +30,16 @@ export default function PostCard({ post }: { post: Post }) {
         <span className="muted small">{timeAgo(post.publishedAt ?? post.createdAt)}</span>
       </header>
       <Link to={`/post/${post.publicId}`} className="post-body">
-        {post.title && <h3 className="post-title">{post.title}</h3>}
-        {post.description && <p className="post-text">{post.description}</p>}
+        {post.title && (
+          <h3 className="post-title">
+            <RichText text={post.title} />
+          </h3>
+        )}
+        {post.description && (
+          <p className="post-text">
+            <RichText text={post.description} />
+          </p>
+        )}
         <Media media={post.media} />
       </Link>
       <footer className="post-footer muted small">

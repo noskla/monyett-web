@@ -7,6 +7,7 @@ import LikeButton from "../components/LikeButton";
 import Media from "../components/Media";
 import Avatar from "../components/Avatar";
 import UserBadge from "../components/UserBadge";
+import RichText from "../components/RichText";
 import { useSession } from "../hooks";
 import { timeAgo, avatarOf } from "../util";
 import type { Comment, CommentsPage, Pagination, Post } from "../types";
@@ -93,8 +94,16 @@ export default function PostDetail() {
           </span>
           <span className="muted small">{timeAgo(post.publishedAt ?? post.createdAt)}</span>
         </header>
-        {post.title && <h3 className="post-title">{post.title}</h3>}
-        {post.description && <p className="post-text">{post.description}</p>}
+        {post.title && (
+          <h3 className="post-title">
+            <RichText text={post.title} />
+          </h3>
+        )}
+        {post.description && (
+          <p className="post-text">
+            <RichText text={post.description} />
+          </p>
+        )}
         <Media media={post.media} />
         <footer className="post-footer muted small">
           <LikeButton postId={post.publicId} initialLiked={post.is_liked} initialCount={post.likes_count ?? 0} />

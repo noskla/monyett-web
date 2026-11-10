@@ -146,3 +146,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 .badge-verified { background: rgba(79, 124, 255, 0.18); color: #8fb0ff; border: 1px solid rgba(79, 124, 255, 0.5); }
 .badge-human { background: rgba(80, 200, 140, 0.14); color: #6fdcb0; border: 1px solid rgba(80, 200, 140, 0.45); }
 .badge-other { background: var(--border); color: var(--muted); }
+
+/* --- hashtags --- */
+.hashtag { color: var(--accent); text-decoration: none; }
+.hashtag:hover { text-decoration: underline; }

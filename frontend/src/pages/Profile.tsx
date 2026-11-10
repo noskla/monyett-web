@@ -5,6 +5,7 @@ import Avatar from "../components/Avatar";
 import PostCard from "../components/PostCard";
 import FollowButton from "../components/FollowButton";
 import UserBadge from "../components/UserBadge";
+import RichText from "../components/RichText";
 import { useSession } from "../hooks";
 import { avatarOf } from "../util";
 import type { Pagination, Post, User } from "../types";
@@ -101,7 +102,11 @@ export default function Profile() {
             <UserBadge badge={profile.badge} tier={profile.effectiveTier} />
           </h2>
           <p className="muted">@{profile.username}</p>
-          {profile.bio && <p className="bio">{profile.bio}</p>}
+          {profile.bio && (
+            <p className="bio">
+              <RichText text={profile.bio} />
+            </p>
+          )}
           <p className="muted small">{postCount ?? posts.length} posts</p>
         </div>
         {!isSelf && (

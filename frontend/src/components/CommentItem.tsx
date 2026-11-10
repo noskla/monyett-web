@@ -4,6 +4,7 @@ import type { Comment } from "../types";
 import Avatar from "./Avatar";
 import CommentComposer from "./CommentComposer";
 import UserBadge from "./UserBadge";
+import RichText from "./RichText";
 import { timeAgo } from "../util";
 
 interface Props {
@@ -68,7 +69,9 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
           {author?.username && <span className="muted"> @{author.username}</span>}
           <span className="muted small"> {timeAgo(comment.created_at)}</span>
         </div>
-        <p className="comment-text">{comment.comment}</p>
+        <p className="comment-text">
+          <RichText text={comment.comment} />
+        </p>
         <div className="comment-actions muted small">
           <span>♥ {comment.likes_count ?? 0}</span>
           <button className="link-btn" onClick={() => setShowReply((s) => !s)}>reply</button>
