@@ -10,7 +10,7 @@ Sign in → chronological feed (background new-post check with a manual "-- refr
 
 **Stories**: circles above the feed (your story first, "+" to add; pink ring = unseen), tap-through viewer with progress bars, auto-advance, hold-to-pause and tap zones; create stories from the compose page (`/compose?type=story`, `post_type: "STORY"` + media upload); on your own stories you can see viewers and delete them; story archive by month on your own profile. Read-mostly: only "mark viewed" is automatic; everything else is an explicit action.
 
-Out of scope by design: E2EE DMs, push notifications, registration/deletion, payments, admin — see `PLAN.md`.
+Out of scope by design: E2EE DMs, push notifications, registration/deletion, payments, admin.
 
 ## Security & hardening
 
@@ -92,9 +92,9 @@ CI (GitHub Actions) runs both on every push/PR.
 ## Layout
 
 ```
-backend/app/    main.py (routes, allowlist proxy, gate) · monnett_client.py (all API quirks)
+backend/app/    main.py (routes, allowlist proxy, gate, rate limits) · monnett_client.py (all API quirks)
                 config.py · session.py (encrypted cookies) · schemas.py · dev/mock_upstream.py
 frontend/src/   api.ts · hooks.ts · pages/ (Feed, PostDetail, Profile, Search, Compose, …) · components/
 docs/           openapi-prod.json / openapi-dev.json (contract of record)
-PLAN.md         full plan, risk register, acceptance rules
+AGENTS.md       working conventions for agents on this repo
 ```
