@@ -46,7 +46,7 @@ export default function LikeButton({ postId, initialLiked = false, initialCount 
         disabled={pending || !postId}
         title={liked ? "Unlike" : "Like"}
       >
-        <Icon name={liked ? "heart-filled" : "heart"} size={15} /> {count}
+        <Icon name="heart" size={15} /> {count}
       </button>
       {error && <span className="error small"> {error}</span>}
     </span>
