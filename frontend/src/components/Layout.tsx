@@ -6,7 +6,7 @@ import Icon from "./Icon";
 import Avatar from "./Avatar";
 import UserBadge from "./UserBadge";
 import NotificationsPanel from "./NotificationsPanel";
-import { avatarOf, badgeOf, tierOf } from "../util";
+import { avatarOf, badgeOf, ringColorsOf, tierOf } from "../util";
 import type { Features } from "../types";
 
 export default function Layout() {
@@ -40,7 +40,11 @@ export default function Layout() {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users or #tag" />
         </form>
         {user?.username && (
-          <Link to={`/u/${user.username}`} className="topbar-user" title="Your profile">
+          <Link
+            to={`/u/${user.username}`}
+            className="topbar-user"
+            title={`Your profile — badge=${badgeOf(user) ?? "-"} ring=${ringColorsOf(user).join(",") || "-"} tier=${tierOf(user) ?? "-"}`}
+          >
             <Avatar
               url={avatarOf(user)}
               name={user.name ?? user.username}
