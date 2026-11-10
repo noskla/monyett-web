@@ -27,13 +27,24 @@ export default function StoryViewer() {
 
   useEffect(() => {
     if (!publicId) return;
-    api
-      .stories(1, 50)
-      .then((res) => {
-        const feed = res.data as StoriesFeed;
-        const found = [...(feed.users ?? []), ...(feed.current_user ? [feed.current_user] : [])].find(
-          (u) => u.publicId === publicId,
-        );
+    let cancelled = false;
+    (async () => {
+      try {
+        // primary: the stories feed (groups by user); fallback: the user's own
+        // story ring endpoint — profile links may point at users not in the feed page
+        let found: StoryUser | undefined;
+        try {
+          const feed = (await api.stories(1, 50)).data as StoriesFeed;
+          found = [...(feed.users ?? []), ...(feed.current_user ? [feed.current_user] : [])].find(
+            (u) => u.publicId === publicId,
+          );
+        } catch {
+          /* fall through to direct fetch */
+        }
+        if (!found) {
+          found = (await api.userStories(publicId)).data as StoryUser;
+        }
+        if (cancelled) return;
         if (!found) throw new ApiError(404, "not_found", "stories not found for this user");
         // current_user may be a stub — fill identity/avatar from the session user
         setUserStories(
@@ -42,8 +53,13 @@ export default function StoryViewer() {
             : found,
         );
         setIndex(0);
-      })
-      .catch((e) => setError((e as ApiError).message ?? "failed to load stories"));
+      } catch (e) {
+        if (!cancelled) setError((e as ApiError).message ?? "failed to load stories");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [publicId, user]);
 
   const story: StoryItem | undefined = userStories?.stories?.[index];
