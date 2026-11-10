@@ -33,6 +33,9 @@ export interface User {
   verified?: boolean;
   badge?: string;
   effectiveTier?: string;
+  avatar_ring_color?: string;
+  avatar_ring_colors?: string[];
+  avatarRingColor?: { hexCode?: string; colors?: string[] };
   is_following?: boolean;
   isFollowing?: boolean;
   is_follower?: boolean;

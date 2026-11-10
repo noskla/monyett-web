@@ -7,7 +7,7 @@ import FollowButton from "../components/FollowButton";
 import UserBadge from "../components/UserBadge";
 import RichText from "../components/RichText";
 import { useSession } from "../hooks";
-import { avatarOf } from "../util";
+import { avatarOf, ringColorOf } from "../util";
 import type { Pagination, Post, User } from "../types";
 
 interface UserStats {
@@ -95,7 +95,13 @@ export default function Profile() {
   return (
     <div className="profile">
       <header className="card profile-header">
-        <Avatar url={avatarOf(profile)} name={profile.display_name ?? profile.name ?? profile.username} size={72} />
+        <Avatar
+          url={avatarOf(profile)}
+          name={profile.display_name ?? profile.name ?? profile.username}
+          size={72}
+          badge={profile.badge}
+          ringColor={ringColorOf(profile)}
+        />
         <div className="profile-info">
           <h2>
             {profile.display_name ?? profile.name ?? profile.username}{" "}

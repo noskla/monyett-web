@@ -5,7 +5,7 @@ import Avatar from "./Avatar";
 import CommentComposer from "./CommentComposer";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
-import { timeAgo } from "../util";
+import { timeAgo, ringColorOf } from "../util";
 
 interface Props {
   comment: Comment;
@@ -61,7 +61,7 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
 
   return (
     <div className="comment">
-      <Avatar url={author?.avatar_url} name={name} size={32} />
+      <Avatar url={author?.avatar_url} name={name} size={32} badge={author?.badge} ringColor={ringColorOf(author)} />
       <div className="comment-body">
         <div className="comment-head">
           <strong>{name}</strong>
@@ -104,7 +104,7 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
         )}
         {showReplies && replies.map((r) => (
           <div className="comment reply" key={r.public_id}>
-            <Avatar url={r.commented_by?.avatar_url} name={r.commented_by?.name ?? r.commented_by?.username} size={28} />
+            <Avatar url={r.commented_by?.avatar_url} name={r.commented_by?.name ?? r.commented_by?.username} size={28} badge={r.commented_by?.badge} ringColor={ringColorOf(r.commented_by)} />
             <div className="comment-body">
               <div className="comment-head">
                 <strong>{r.commented_by?.name ?? r.commented_by?.username ?? "unknown"}</strong>

@@ -5,7 +5,7 @@ import Media from "./Media";
 import LikeButton from "./LikeButton";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
-import { timeAgo } from "../util";
+import { timeAgo, ringColorOf } from "../util";
 
 /** The dominant feed component: author, text, media, counts. */
 export default function PostCard({ post }: { post: Post }) {
@@ -20,7 +20,7 @@ export default function PostCard({ post }: { post: Post }) {
     <article className="card post-card">
       <header className="post-header">
         <Link to={author?.username ? `/u/${author.username}` : "#"} className="post-author">
-          <Avatar url={avatarUrl} name={authorName} size={40} />
+          <Avatar url={avatarUrl} name={authorName} size={40} badge={author?.badge} ringColor={ringColorOf(author)} />
           <span>
             <strong>{authorName}</strong>
             <UserBadge badge={author?.badge} tier={author?.effectiveTier} />

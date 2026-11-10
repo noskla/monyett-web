@@ -14,7 +14,8 @@ function normalize(badge?: string | null, tier?: string | null): { label: string
     return { label: "Member", kind: "member" };
   }
   if (raw.includes("VERIFIED")) return { label: "✓", kind: "verified" };
-  if (raw.includes("HUMAN")) return { label: "Human", kind: "human" };
+  // HUMAN is shown as a checkmark + colored ring on the avatar, not as text
+  if (raw.includes("HUMAN")) return null;
   if (badge && badge.trim()) return { label: badge.trim(), kind: "other" };
   return null;
 }

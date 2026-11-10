@@ -28,3 +28,22 @@ export function avatarOf(user: unknown): string | undefined {
     u?.profilePicture?.thumbnailUrl
   );
 }
+
+/** The user-chosen avatar ring color (hex), from any of the shapes the API uses. */
+export function ringColorOf(user: unknown): string | undefined {
+  const u = user as {
+    avatar_ring_color?: string;
+    avatar_ring_colors?: string[];
+    avatarRingColor?: { hexCode?: string; colors?: string[] };
+  } | null;
+  return (
+    u?.avatar_ring_color ??
+    u?.avatarRingColor?.hexCode ??
+    u?.avatar_ring_colors?.[0] ??
+    u?.avatarRingColor?.colors?.[0]
+  );
+}
+
+export function isHumanBadge(badge?: string | null): boolean {
+  return (badge ?? "").toUpperCase().includes("HUMAN");
+}
