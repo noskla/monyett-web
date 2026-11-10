@@ -3,7 +3,10 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useSession } from "../hooks";
 import Icon from "./Icon";
+import Avatar from "./Avatar";
+import UserBadge from "./UserBadge";
 import NotificationsPanel from "./NotificationsPanel";
+import { avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
 import type { Features } from "../types";
 
 export default function Layout() {
@@ -37,8 +40,16 @@ export default function Layout() {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users or #tag" />
         </form>
         {user?.username && (
-          <Link to={`/u/${user.username}`} className="muted topbar-user">
-            @{user.username}
+          <Link to={`/u/${user.username}`} className="topbar-user" title="Your profile">
+            <Avatar
+              url={avatarOf(user)}
+              name={user.name ?? user.username}
+              size={26}
+              user={user}
+              ringColor={ringColorOf(user)}
+            />
+            <span className="topbar-username">{user.name ?? user.username}</span>
+            <UserBadge badge={badgeOf(user)} tier={tierOf(user)} />
           </Link>
         )}
         {features?.createPost && (
