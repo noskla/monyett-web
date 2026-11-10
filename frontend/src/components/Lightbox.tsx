@@ -8,17 +8,17 @@ const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(mi
  *  Click outside the image or Esc closes. */
 export default function Lightbox({ src, alt, onClose }: { src: string; alt?: string; onClose: () => void }) {
   const [scale, setScale] = useState(1);
-  const [origin, setOrigin] = useState({ x: 50, y: 50 });
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   const drag = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
+  const scaleRef = useRef(1);
+  scaleRef.current = scale;
 
   // reset zoom/pan for each new photo
   useEffect(() => {
     setScale(1);
     setPan({ x: 0, y: 0 });
-    setOrigin({ x: 50, y: 50 });
   }, [src]);
 
   useEffect(() => {
@@ -45,16 +45,19 @@ export default function Lightbox({ src, alt, onClose }: { src: string; alt?: str
 
   function onWheel(e: React.WheelEvent) {
     const img = imgRef.current;
-    if (img && img.offsetWidth > 0) {
-      // offset* are the PRE-transform layout box (the lightbox is fixed at
-      // inset 0, so viewport coords map 1:1) — getBoundingClientRect would
-      // return the already-zoomed box and zoom at the wrong point
-      setOrigin({
-        x: clamp(((e.clientX - img.offsetLeft) / img.offsetWidth) * 100, 0, 100),
-        y: clamp(((e.clientY - img.offsetTop) / img.offsetHeight) * 100, 0, 100),
-      });
-    }
-    setScale((s) => clamp(s + (e.deltaY < 0 ? 0.15 : -0.15), 0.5, 8));
+    if (!img || img.offsetWidth === 0) return;
+    // Zoom-at-cursor done right: keep transform-origin at 0 0 and adjust the
+    // pan so the image point under the cursor stays fixed across scale changes.
+    // screen = layoutPos + pan + scale * p  (layout box from offset*, pre-transform;
+    // the lightbox is fixed at inset 0, so viewport coords map 1:1)
+    const layoutLeft = img.offsetLeft;
+    const layoutTop = img.offsetTop;
+    const s = scaleRef.current;
+    const ns = clamp(s + (e.deltaY < 0 ? 0.15 : -0.15), 0.5, 8);
+    const px = (e.clientX - layoutLeft - pan.x) / s; // image point under cursor
+    const py = (e.clientY - layoutTop - pan.y) / s;
+    setPan({ x: e.clientX - layoutLeft - ns * px, y: e.clientY - layoutTop - ns * py });
+    setScale(ns);
   }
 
   function onMouseDown(e: React.MouseEvent) {
@@ -74,7 +77,7 @@ export default function Lightbox({ src, alt, onClose }: { src: string; alt?: str
         className="lightbox-img"
         style={{
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
-          transformOrigin: `${origin.x}% ${origin.y}%`,
+          transformOrigin: "0 0",
           cursor: dragging ? "grabbing" : scale > 1 ? "grab" : "zoom-in",
         }}
         onClick={(e) => e.stopPropagation()}
