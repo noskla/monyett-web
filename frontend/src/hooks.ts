@@ -60,12 +60,22 @@ export interface SessionState {
 // so without this every mount fires its own /auth/session request.
 let sessionPromise: Promise<{ user: User | null; gate: "gate" | "no_session" | null }> | null = null;
 
+/** Unwrap the session user if the API nests it (e.g. {user: {...}} / {profile: {...}}). */
+export function normalizeUser(data: any): User | null {
+  let u = data;
+  if (u && typeof u === "object" && !u.username && !u.name && !u.id) {
+    if (u.user && typeof u.user === "object") u = u.user;
+    else if (u.profile && typeof u.profile === "object") u = u.profile;
+  }
+  return u && typeof u === "object" ? (u as User) : null;
+}
+
 function bootstrapSession() {
   if (!sessionPromise) {
     sessionPromise = (async () => {
       try {
         const res = await api.session();
-        return { user: res.data, gate: null };
+        return { user: normalizeUser(res.data), gate: null };
       } catch (e) {
         const err = e as ApiError;
         return { user: null, gate: err.code === "gate" ? ("gate" as const) : ("no_session" as const) };

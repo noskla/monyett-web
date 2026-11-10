@@ -139,7 +139,7 @@ export default function Compose() {
           <div className="phone-screen">
             <div className="phone-post-head">
               <Avatar url={avatarOf(user)} name={user?.name ?? user?.username} size={28} user={user} />
-              <strong>{user?.name ?? user?.username ?? "you"}</strong>
+              <strong>{user?.name ?? user?.username ?? user?.email ?? "you"}</strong>
             </div>
             <div className="phone-media">
               {first ? (
