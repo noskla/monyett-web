@@ -245,3 +245,28 @@ a { color: var(--link); }
 @media (max-width: 960px) {
   .layout-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* --- media carousel --- */
+.carousel { display: flex; flex-direction: column; gap: 0.4rem; }
+.carousel-stage { position: relative; display: flex; justify-content: center; }
+.carousel-stage .media-item { max-width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+.carousel-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(22, 25, 34, 0.75); border: 1px solid var(--border); color: var(--text);
+  border-radius: 50%; width: 32px; height: 32px; padding: 0;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.carousel-btn:hover { background: var(--accent); }
+.carousel-btn.prev { left: 8px; }
+.carousel-btn.next { right: 8px; }
+.carousel-counter {
+  position: absolute; bottom: 8px; right: 10px;
+  background: rgba(22, 25, 34, 0.75); border-radius: 999px;
+  padding: 0.1rem 0.5rem; font-size: 0.75rem; color: var(--text);
+}
+.carousel-dots { display: flex; gap: 0.35rem; justify-content: center; }
+.carousel-dots .dot {
+  width: 7px; height: 7px; border-radius: 50%; padding: 0;
+  background: var(--border); border: none; cursor: pointer;
+}
+.carousel-dots .dot.active { background: var(--accent); }
