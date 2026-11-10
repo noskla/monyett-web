@@ -1,6 +1,9 @@
-import LniIcon from "react-lineicons";
+// side-effect import: injects the LineIcons webfont CSS
+import "react-lineicons";
 
-/** Lineicons (lineicons.com) icon wrapper. `name` is the lni icon name, e.g. "heart". */
+/** Lineicons (lineicons.com) icon. `name` is the lni icon name, e.g. "heart".
+ *  Plain <i class="lni lni-..."> — avoids the library component's defaultProps
+ *  deprecation warning. */
 export default function Icon({
   name,
   size = 16,
@@ -13,8 +16,11 @@ export default function Icon({
   title?: string;
 }) {
   return (
-    <span className={className} title={title} style={{ fontSize: size, display: "inline-flex", lineHeight: 1 }}>
-      <LniIcon name={name} />
-    </span>
+    <i
+      className={`lni lni-${name}${className ? " " + className : ""}`}
+      title={title}
+      style={{ fontSize: size, display: "inline-flex", lineHeight: 1 }}
+      aria-hidden={!title}
+    />
   );
 }
