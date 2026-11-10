@@ -436,3 +436,7 @@ a { color: var(--link); }
 .avatar-check { position: absolute; bottom: -3px; right: -3px; border-radius: 50%; color: #0f1115; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--bg); }
 
 .avatar-zoomable { cursor: zoom-in; display: inline-block; }
+
+/* 'View all' link in the notifications panel uses the brand accent like the rest of the design */
+.side-notifs > a { color: var(--accent); text-decoration: none; }
+.side-notifs > a:hover { text-decoration: underline; }
