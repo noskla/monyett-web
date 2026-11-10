@@ -444,3 +444,13 @@ a { color: var(--link); }
 /* /notifications page: spacing between items; seen notifications get no accent border (unread dot only) */
 .notifications { display: flex; flex-direction: column; gap: 0.75rem; }
 .notif.unseen { border-color: var(--border); }
+
+/* align the like button with the other post stats */
+.post-footer { align-items: center; }
+.like-btn {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.1rem 0.3rem; margin: 0; border: none; background: transparent;
+  color: var(--muted); font-size: 0.95rem; line-height: 1; cursor: pointer; border-radius: 6px;
+}
+.like-btn:hover { color: var(--text); }
+.like-btn.liked { color: var(--accent); }
