@@ -77,7 +77,25 @@ function bootstrapSession() {
     sessionPromise = (async () => {
       try {
         const res = await api.session();
-        return { user: normalizeUser(res.data), gate: null };
+        let u = normalizeUser(res.data);
+        // the session user is thin — full profile (badge, avatar ring colors,
+        // tier, …) comes from the legacy numeric-ID profile endpoint
+        if (u?.id) {
+          try {
+            const prof = await api.profile(String(u.id));
+            const p = normalizeUser(prof.data) ?? (prof.data as Record<string, unknown> | null);
+            if (p) {
+              const merged: Record<string, any> = { ...p, ...u };
+              for (const k of ["badge", "avatar_ring_color", "avatar_ring_colors", "avatarRingColor", "effectiveTier", "verified", "bio", "website", "location", "professionalInfo", "createdAt"]) {
+                if (merged[k] == null && (p as Record<string, any>)[k] != null) merged[k] = (p as Record<string, any>)[k];
+              }
+              u = merged as User;
+            }
+          } catch {
+            /* profile enrichment is best-effort */
+          }
+        }
+        return { user: u, gate: null };
       } catch (e) {
         const err = e as ApiError;
         return { user: null, gate: err.code === "gate" ? ("gate" as const) : ("no_session" as const) };
@@ -91,6 +109,11 @@ function bootstrapSession() {
  *  reloads the page instead, which achieves the same). */
 export function __resetSessionForTests() {
   sessionPromise = null;
+}
+
+/** Test-only: run the bootstrap and return its result. */
+export function __probeSession() {
+  return bootstrapSession();
 }
 
 export function useSession(): SessionState {
