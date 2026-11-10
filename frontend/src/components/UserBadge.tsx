@@ -7,10 +7,10 @@ interface Props {
 
 function normalize(badge?: string | null, tier?: string | null): { label: string; kind: string } | null {
   const raw = `${badge ?? ""} ${tier ?? ""}`.toUpperCase();
-  if (raw.includes("MEMBERSHIP_PLUS") || raw.includes("MEMBER_PLUS") || raw.includes("PLUS") || raw.includes("+")) {
+  if (raw.includes("MEMBERSHIP_PLUS") || raw.includes("MEMBER_PLUS") || raw.includes("PLUS") || raw.includes("PREMIUM") || raw.includes("+")) {
     return { label: "Member+", kind: "member-plus" };
   }
-  if (raw.includes("MEMBER") || raw.includes("MEMBERSHIP")) {
+  if (raw.includes("MEMBER") || raw.includes("MEMBERSHIP") || raw.includes("PAID") || raw.includes("SUBSCRIBER")) {
     return { label: "Member", kind: "member" };
   }
   if (raw.includes("VERIFIED")) return { label: "✓", kind: "verified" };

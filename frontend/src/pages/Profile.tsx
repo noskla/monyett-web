@@ -32,9 +32,7 @@ export default function Profile() {
   const [page, setPage] = useState(0);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [loadingPosts, setLoadingPosts] = useState(false);
-  const [followerCount, setFollowerCount] = useState<number | null>(null);
   const { user } = useSession();
-  const isSelf = !!user && (profile?.id === user.id || profile?.publicId === user.publicId);
 
   useEffect(() => {
     setProfile(null);
@@ -49,7 +47,15 @@ export default function Profile() {
         const pub = res.data as User;
         // full profile via legacy numeric-ID endpoint
         const full = await api.profile(String(pub.id)).catch(() => null);
-        setProfile({ ...(full?.data as ProfileShape), ...pub, id: pub.id, publicId: pub.publicId });
+        // own profile: legacy endpoint may lack badge/tier — take them from the session user
+        const self = user && (pub.id === user.id || pub.publicId === user.publicId);
+        setProfile({
+          ...(full?.data as ProfileShape),
+          ...pub,
+          id: pub.id,
+          publicId: pub.publicId,
+          ...(self ? { badge: user?.badge, effectiveTier: user?.effectiveTier } : {}),
+        });
         await loadPosts(String(pub.id), 1, true);
       } catch (e) {
         setError((e as ApiError).message ?? "failed to load profile");
@@ -81,9 +87,9 @@ export default function Profile() {
   if (!profile) return <p className="muted">Loading profile…</p>;
 
   const stats = profile.stats;
-  const followers = followerCount ?? stats?.followerCount ?? profile.followerCount;
-  const following = stats?.followingCount ?? profile.followingCount;
   const postCount = stats?.postCount ?? profile.postCount;
+  // followers/following intentionally not displayed (platform hides them by design)
+  const isSelf = !!user && (profile.id === user.id || profile.publicId === user.publicId);
 
   return (
     <div className="profile">
@@ -96,17 +102,14 @@ export default function Profile() {
           </h2>
           <p className="muted">@{profile.username}</p>
           {profile.bio && <p className="bio">{profile.bio}</p>}
-          <p className="muted small">
-            {postCount ?? posts.length} posts · {followers ?? "?"} followers · {following ?? "?"} following
-          </p>
+          <p className="muted small">{postCount ?? posts.length} posts</p>
         </div>
         {!isSelf && (
           <FollowButton
             publicId={profile.publicId}
             initialFollowing={profile.is_following ?? profile.isFollowing}
-            onState={(following, count) => {
+            onState={(following) => {
               setProfile((p) => (p ? { ...p, is_following: following } : p));
-              if (typeof count === "number") setFollowerCount(count);
             }}
           />
         )}
