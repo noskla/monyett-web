@@ -24,20 +24,23 @@ export function exactTime(iso?: string | null): string {
   });
 }
 
+const AVATAR_URL_FIELDS = ["url", "optimalUrl", "originalUrl", "thumbnailUrl", "compressed_url", "compressedUrl", "thumbnail_url"];
+
+/** Avatar URL from any avatar/picture-shaped field the API uses
+ *  (avatar_url, profile_picture.*, profilePicture.* — string or MediaFile object). */
 export function avatarOf(user: unknown): string | undefined {
-  const u = user as {
-    avatar_url?: string;
-    profile_picture?: { url?: string; compressed_url?: string; thumbnail_url?: string };
-    profilePicture?: { originalUrl?: string; optimalUrl?: string; thumbnailUrl?: string };
-  } | null;
-  return (
-    u?.avatar_url ??
-    u?.profile_picture?.url ??
-    u?.profile_picture?.compressed_url ??
-    u?.profilePicture?.optimalUrl ??
-    u?.profilePicture?.originalUrl ??
-    u?.profilePicture?.thumbnailUrl
-  );
+  const u = user as Record<string, any> | null;
+  if (!u) return undefined;
+  for (const [k, v] of Object.entries(u)) {
+    if (!/avatar|picture/i.test(k)) continue;
+    if (typeof v === "string" && v) return v;
+    if (v && typeof v === "object") {
+      for (const f of AVATAR_URL_FIELDS) {
+        if (typeof v[f] === "string" && v[f]) return v[f];
+      }
+    }
+  }
+  return undefined;
 }
 
 /** The user-chosen avatar ring color (hex), from any of the shapes the API uses. */
