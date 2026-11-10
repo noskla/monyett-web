@@ -67,7 +67,9 @@ export function normalizeUser(data: any): User | null {
     if (u.user && typeof u.user === "object") u = u.user;
     else if (u.profile && typeof u.profile === "object") u = u.profile;
   }
-  return u && typeof u === "object" ? (u as User) : null;
+  if (!u || typeof u !== "object") return null;
+  if (!u.username && !u.name && !u.id && !u.email) return null;
+  return u as User;
 }
 
 function bootstrapSession() {
