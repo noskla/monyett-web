@@ -35,11 +35,16 @@ export default function StoryViewer() {
           (u) => u.publicId === publicId,
         );
         if (!found) throw new ApiError(404, "not_found", "stories not found for this user");
-        setUserStories(found);
+        // current_user may be a stub — fill identity/avatar from the session user
+        setUserStories(
+          found.publicId && user?.publicId === found.publicId
+            ? { ...found, ...user, stories: found.stories, has_unseen: found.has_unseen }
+            : found,
+        );
         setIndex(0);
       })
       .catch((e) => setError((e as ApiError).message ?? "failed to load stories"));
-  }, [publicId]);
+  }, [publicId, user]);
 
   const story: StoryItem | undefined = userStories?.stories?.[index];
   const isOwn = !!user && (userStories?.publicId === user.publicId);
