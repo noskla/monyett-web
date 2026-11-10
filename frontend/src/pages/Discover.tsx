@@ -65,6 +65,23 @@ export default function Discover() {
     };
   }
 
+  // per-scope validity — mirrors the API contract (CITY needs city AND country,
+  // COUNTRY needs country, NEARBY needs lat+lng+radius, GLOBAL always ok)
+  const paramsValid = useMemo(() => {
+    if (scope === "GLOBAL") return true;
+    if (scope === "NEARBY") return coords !== null && radius > 0;
+    if (scope === "COUNTRY") return !!country;
+    return !!country && !!effectiveCity; // CITY
+  }, [scope, coords, radius, country, effectiveCity]);
+
+  const validityHint = !paramsValid
+    ? scope === "NEARBY"
+      ? "Location needed for Nearby — use “Use my location”."
+      : scope === "CITY"
+        ? "City scope needs a country and a city."
+        : "Choose a country first."
+    : null;
+
   const load = useCallback(
     async (cur: string | null, replace: boolean) => {
       const params = buildParams(cur);
@@ -96,16 +113,23 @@ export default function Discover() {
     [scope, country, effectiveCity, radius, coords, membersOnly],
   );
 
-  // persist + auto-load on mount with the remembered (or default Global) scope
+  // persist choices (incl. effective/custom city) and auto-search once the
+  // current scope's values are complete — debounced so we wait until the user
+  // finishes typing/picking instead of firing a 400 mid-entry
   useEffect(() => {
     try {
-      localStorage.setItem(LS_KEY, JSON.stringify({ scope, country, city, radius }));
+      localStorage.setItem(LS_KEY, JSON.stringify({ scope, country, city: effectiveCity, radius }));
     } catch {
       /* ignore */
     }
-    load(null, true);
+    if (!paramsValid) {
+      setSearched(false);
+      return;
+    }
+    const t = setTimeout(() => load(null, true), 600);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [scope, country, effectiveCity, radius, coords, membersOnly, paramsValid]);
 
   function onScopeChange(s: Scope) {
     setScope(s);
@@ -196,11 +220,11 @@ export default function Discover() {
         </div>
       </div>
       {error && <p className="error">{error}</p>}
+      {validityHint && !loading && <p className="muted">{validityHint}</p>}
       {posts.map((p) => (
         <PostCard key={p.publicId ?? p.id} post={p} />
       ))}
       {!loading && posts.length === 0 && !error && searched && <p className="muted">No posts found for this scope.</p>}
-      {!searched && !loading && <p className="muted">Loading…</p>}
       {cursor && (
         <button className="load-more" onClick={() => load(cursor, false)} disabled={loading}>
           {loading ? "Loading…" : "Load more"}
