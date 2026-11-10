@@ -431,3 +431,6 @@ a { color: var(--link); }
 .profile-meta a:hover { color: var(--link); }
 .profile-stats { margin-top: 0.3rem; font-weight: 600; color: var(--text); }
 .profile-header .follow-button { align-self: flex-start; }
+
+/* avatar check scales via inline size; keep positioned to top-right */
+.avatar-check { position: absolute; top: -3px; right: -3px; border-radius: 50%; color: #0f1115; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--bg); }
