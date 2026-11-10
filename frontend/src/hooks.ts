@@ -86,8 +86,13 @@ function bootstrapSession() {
             const p = normalizeUser(prof.data) ?? (prof.data as Record<string, unknown> | null);
             if (p) {
               const merged: Record<string, any> = { ...p, ...u };
+              // profile-only fields enrich the session user…
               for (const k of ["badge", "avatar_ring_color", "avatar_ring_colors", "avatarRingColor", "effectiveTier", "verified", "bio", "website", "location", "professionalInfo", "createdAt"]) {
                 if (merged[k] == null && (p as Record<string, any>)[k] != null) merged[k] = (p as Record<string, any>)[k];
+              }
+              // …but the avatar URL always comes from the session user
+              for (const k of ["avatar_url", "avatarUrl", "avatar", "profile_picture", "profilePicture"]) {
+                if ((u as Record<string, any>)[k] != null) merged[k] = (u as Record<string, any>)[k];
               }
               u = merged as User;
             }
