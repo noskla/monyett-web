@@ -353,3 +353,30 @@ a { color: var(--link); }
 .geo-picker { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
 .geo-picker input { padding: 0.4rem 0.7rem; font-size: 0.9rem; width: 170px; }
 .geo-picker select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem; max-width: 200px; }
+
+/* --- discover controls: search bar fused with its dropdown --- */
+.discover-controls { padding: 0.9rem; }
+.discover-controls .compose-row { flex-wrap: wrap; row-gap: 0.6rem; }
+.geo-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.combo {
+  display: inline-flex; align-items: stretch;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 9px; overflow: hidden;
+}
+.combo:focus-within { border-color: var(--accent); }
+.combo-icon {
+  display: inline-flex; align-items: center; padding: 0 0.45rem;
+  color: var(--muted); border-right: 1px solid var(--border); background: var(--panel);
+}
+.combo input {
+  border: none; background: transparent; color: var(--text);
+  padding: 0.45rem 0.6rem; font-size: 0.9rem; width: 150px; outline: none;
+}
+.combo select {
+  border: none; border-left: 1px solid var(--border); background: transparent; color: var(--text);
+  padding: 0.45rem 0.5rem; max-width: 170px; outline: none; cursor: pointer;
+}
+.combo select option { background: var(--panel); color: var(--text); }
+.combo-custom input { width: 140px; }
+.discover-controls select, .discover-controls > .compose-row > select {
+  background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 0.45rem 0.6rem;
+}

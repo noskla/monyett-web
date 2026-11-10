@@ -136,14 +136,15 @@ export default function Discover() {
             <option value="NEARBY">Nearby (radius)</option>
           </select>
           {(scope === "CITY" || scope === "COUNTRY") && (
-            <div className="geo-picker">
+            <div className="combo" title="Country">
+              <span className="combo-icon"><Icon name="search-1" size={13} /></span>
               <input
                 placeholder="Search countries…"
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
               />
               <select value={country} onChange={(e) => { setCountry(e.target.value); setCity(""); setCustomCity(""); }}>
-                <option value="">Choose country…</option>
+                <option value="">Country…</option>
                 {countries.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -153,7 +154,8 @@ export default function Discover() {
           {scope === "CITY" && country && (
             <div className="geo-picker">
               {cities.length > 0 && (
-                <>
+                <div className="combo" title="City">
+                  <span className="combo-icon"><Icon name="search-1" size={13} /></span>
                   <input
                     placeholder="Search top cities…"
                     value={cityFilter}
@@ -165,13 +167,16 @@ export default function Discover() {
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
-                </>
+                </div>
               )}
-              <input
-                placeholder="or custom city name"
-                value={customCity}
-                onChange={(e) => { setCustomCity(e.target.value); setCity(""); }}
-              />
+              <div className="combo combo-custom" title="Custom city">
+                <span className="combo-icon"><Icon name="map-marker-1" size={13} /></span>
+                <input
+                  placeholder="custom city name"
+                  value={customCity}
+                  onChange={(e) => { setCustomCity(e.target.value); setCity(""); }}
+                />
+              </div>
             </div>
           )}
           {scope === "NEARBY" && (
