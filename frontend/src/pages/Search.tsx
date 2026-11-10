@@ -7,8 +7,14 @@ import UserBadge from "../components/UserBadge";
 import { avatarOf, badgeOf, tierOf } from "../util";
 import type { Post, User } from "../types";
 
-/** Search: users via legacy /api/search (type=user), posts via v1
- *  posts-by-tag when the query starts with #. User-triggered only. */
+/** Search: users via legacy /api/search, posts via v1 posts-by-tag when the
+ *  query starts with #. User-triggered only. */
+function extractUsers(raw: unknown): User[] {
+  if (Array.isArray(raw)) return raw as User[];
+  const o = raw as Record<string, unknown> | null;
+  return (o?.users as User[]) ?? (o?.data as User[]) ?? (Array.isArray(o?.data) ? (o.data as User[]) : []) ?? [];
+}
+
 export default function Search() {
   const [params, setParams] = useSearchParams();
   const q = params.get("q") ?? "";
@@ -36,12 +42,31 @@ export default function Search() {
           const res = await api.searchTag(q.slice(1), 1, 20);
           if (!cancelled) setPosts(res.data.posts ?? []);
         } else {
-          const res = await api.searchUsers(q, 1, 20);
-          const raw = res.data as unknown;
-          const list = Array.isArray(raw)
-            ? (raw as User[])
-            : ((raw as { users?: User[]; data?: User[] })?.users ?? (raw as { data?: User[] })?.data ?? []);
-          if (!cancelled) setUsers(list);
+          // /api/search returns a bare array of {id, publicId, name, match_score}
+          // — `name` is the username; display name may differ, so retry without
+          // the type filter when the filtered search finds nothing
+          let raw: unknown = (await api.searchUsers(q, 1, 20)).data;
+          let list = extractUsers(raw);
+          if (list.length === 0) {
+            raw = (await api.mGet<unknown>("search", { keyword: q, page: 1, pageSize: 20 })).data;
+            list = extractUsers(raw);
+          }
+          // enrich with avatar/badge via by-username (search rows carry none)
+          const enriched = await Promise.allSettled(
+            list.map(async (u) => {
+              const uname = u.username ?? u.name;
+              if (!uname) return u;
+              try {
+                const r = await api.byUsername(uname);
+                return { ...r.data, ...u, username: uname };
+              } catch {
+                return { ...u, username: uname };
+              }
+            }),
+          );
+          if (!cancelled) {
+            setUsers(enriched.map((r) => (r.status === "fulfilled" ? r.value : ({ username: q } as User))));
+          }
         }
       } catch (e) {
         if (!cancelled) setError((e as ApiError).message ?? "search failed");
@@ -83,16 +108,20 @@ export default function Search() {
       )}
       {!loading && !isTag && q && (
         <>
-          {users.map((u) => (
-            <Link to={`/u/${u.username}`} className="card user-result" key={u.publicId ?? u.id}>
-              <Avatar url={avatarOf(u)} name={u.display_name ?? u.name ?? u.username} size={40} user={u} />
-              <span>
-                <strong>{u.display_name ?? u.name ?? u.username}</strong>
-                <UserBadge badge={badgeOf(u)} tier={tierOf(u)} />
-                {u.username && <span className="muted"> @{u.username}</span>}
-              </span>
-            </Link>
-          ))}
+          {users.map((u) => {
+            const uname = u.username ?? u.name;
+            const display = u.display_name ?? u.name ?? uname;
+            return (
+              <Link to={`/u/${uname}`} className="card user-result" key={u.publicId ?? u.id ?? uname}>
+                <Avatar url={avatarOf(u)} name={display} size={40} user={u} />
+                <span>
+                  <strong>{display}</strong>
+                  <UserBadge badge={badgeOf(u)} tier={tierOf(u)} />
+                  {uname && <span className="muted"> @{uname}</span>}
+                </span>
+              </Link>
+            );
+          })}
           {users.length === 0 && <p className="muted">No users found.</p>}
         </>
       )}
