@@ -6,13 +6,7 @@ import LikeButton from "./LikeButton";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
 import Icon from "./Icon";
-import { timeAgo, exactTime, ringColorOf, badgeOf, tierOf } from "../util";
-
-function locationText(post: Post): string {
-  const l = post.location;
-  if (!l) return "";
-  return [l.city ?? l.area, l.country].filter(Boolean).join(", ");
-}
+import { timeAgo, exactTime, ringColorOf, badgeOf, tierOf, locationText } from "../util";
 
 /** The dominant feed component: author, text, media, counts.
  *  Only the timestamp links to the post page; the rest of the card is not a link. */
@@ -24,7 +18,7 @@ export default function PostCard({ post, authorFallback }: { post: Post; authorF
     author?.profile_picture?.compressed_url ??
     (author as { avatar_url?: string } | undefined)?.avatar_url;
   const when = post.publishedAt ?? post.createdAt;
-  const loc = locationText(post);
+  const loc = locationText(post.location);
 
   return (
     <article className="card post-card">

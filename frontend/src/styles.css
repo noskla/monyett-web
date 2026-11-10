@@ -418,3 +418,16 @@ a { color: var(--link); }
 }
 .topbar-user:hover { border-color: var(--accent); }
 .topbar-username { font-size: 0.9rem; font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* --- profile header --- */
+.profile-header { flex-direction: row; align-items: flex-start; gap: 1.25rem; padding: 1.5rem; }
+.profile-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.profile-names h2 { margin: 0; font-size: 1.4rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.profile-names p { margin: 0.1rem 0 0; }
+.verified-check { color: var(--link); font-size: 1rem; }
+.profile-header .bio { margin: 0.2rem 0 0; white-space: pre-wrap; word-break: break-word; }
+.profile-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin-top: 0.3rem; }
+.profile-meta span, .profile-meta a { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--muted); text-decoration: none; }
+.profile-meta a:hover { color: var(--link); }
+.profile-stats { margin-top: 0.3rem; font-weight: 600; color: var(--text); }
+.profile-header .follow-button { align-self: flex-start; }

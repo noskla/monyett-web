@@ -6,8 +6,9 @@ import PostCard from "../components/PostCard";
 import FollowButton from "../components/FollowButton";
 import UserBadge from "../components/UserBadge";
 import RichText from "../components/RichText";
+import Icon from "../components/Icon";
 import { useSession } from "../hooks";
-import { avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
+import { avatarOf, ringColorOf, badgeOf, tierOf, locationText } from "../util";
 import type { Pagination, Post, User } from "../types";
 
 interface UserStats {
@@ -104,22 +105,37 @@ export default function Profile() {
         <Avatar
           url={avatarOf(profile)}
           name={profile.display_name ?? profile.name ?? profile.username}
-          size={72}
+          size={96}
           user={profile}
           ringColor={ringColorOf(profile)}
         />
         <div className="profile-info">
-          <h2>
-            {profile.display_name ?? profile.name ?? profile.username}{" "}
-            <UserBadge badge={badgeOf(profile)} tier={tierOf(profile)} />
-          </h2>
-          <p className="muted">@{profile.username}</p>
+          <div className="profile-names">
+            <h2>
+              {profile.display_name ?? profile.name ?? profile.username}
+              <UserBadge badge={badgeOf(profile)} tier={tierOf(profile)} />
+              {profile.verified && <span className="verified-check" title="Verified">✓</span>}
+            </h2>
+            <p className="muted">@{profile.username}</p>
+          </div>
           {profile.bio && (
             <p className="bio">
               <RichText text={profile.bio} />
             </p>
           )}
-          <p className="muted small">{postCount ?? posts.length} posts</p>
+          <div className="profile-meta muted small">
+            {locationText(profile.location) && (
+              <span><Icon name="map-marker-1" size={12} /> {locationText(profile.location)}</span>
+            )}
+            {profile.website && (
+              <a href={profile.website.startsWith("http") ? profile.website : `https://${profile.website}`} target="_blank" rel="noreferrer">
+                <Icon name="share-1" size={12} /> {profile.website.replace(/^https?:\/\//, "")}
+              </a>
+            )}
+            {profile.professionalInfo && <span>{profile.professionalInfo}</span>}
+            {profile.createdAt && <span>joined {new Date(profile.createdAt).toLocaleDateString(undefined, { month: "short", year: "numeric" })}</span>}
+          </div>
+          <p className="muted small profile-stats">{postCount ?? posts.length} posts</p>
         </div>
         {!isSelf && (
           <FollowButton

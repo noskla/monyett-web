@@ -33,6 +33,10 @@ export interface User {
   verified?: boolean;
   badge?: string;
   effectiveTier?: string;
+  website?: string;
+  professionalInfo?: string;
+  createdAt?: string;
+  location?: { city?: string; country?: string; address?: string; area?: string; zip?: string } | null;
   avatar_ring_color?: string;
   avatar_ring_colors?: string[];
   avatarRingColor?: { hexCode?: string; colors?: string[] };

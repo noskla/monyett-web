@@ -88,6 +88,12 @@ export function isHumanBadge(user: unknown): boolean {
   return (badgeOf(user) ?? "").toUpperCase().includes("HUMAN");
 }
 
+/** "City, Country" from a location-ish object. */
+export function locationText(loc?: { city?: string; country?: string; area?: string; address?: string } | null): string {
+  if (!loc) return "";
+  return [loc.city ?? loc.area, loc.country].filter(Boolean).join(", ");
+}
+
 export interface NotifMeta {
   icon: string;
   verb: string;
