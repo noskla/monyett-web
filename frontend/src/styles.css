@@ -308,3 +308,12 @@ a { color: var(--link); }
   color: var(--muted); font-size: 0.8rem; background: rgba(22,25,34,0.6);
   padding: 0.2rem 0.7rem; border-radius: 999px;
 }
+
+/* --- media container darker backdrop --- */
+.media, .carousel-stage {
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 12px;
+  padding: 4px;
+}
+.carousel-stage .media-item { border: none; }
+.lightbox-img { touch-action: none; }
