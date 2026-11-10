@@ -80,7 +80,7 @@ export default function Discover() {
   return (
     <div className="feed">
       <div className="feed-toolbar">
-        <h2><Icon name="compass" size={18} /> Discover</h2>
+        <h2><Icon name="discover" size={18} /> Discover</h2>
       </div>
       <div className="discover-controls card">
         <div className="compose-row">
@@ -99,7 +99,7 @@ export default function Discover() {
           {scope === "NEARBY" && (
             <>
               <button className="link-btn" onClick={useMyLocation}>
-                <Icon name="map-marker" size={14} /> {coords ? `${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}` : "Use my location"}
+                <Icon name="map-marker-1" size={14} /> {coords ? `${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}` : "Use my location"}
               </button>
               <select value={radius} onChange={(e) => setRadius(Number(e.target.value))}>
                 {[5, 10, 25, 50, 100].map((r) => <option key={r} value={r}>{r} km</option>)}

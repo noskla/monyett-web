@@ -54,7 +54,7 @@ export default function StoryViewer() {
         <Avatar url={avatarOf(user)} name={user.name ?? user.username} size={36} user={user} />
         <strong>{user.name ?? user.username}</strong>
         <span className="muted small">{index + 1}/{user.stories?.length ?? 0}</span>
-        <button className="link-btn" onClick={(e) => { e.stopPropagation(); navigate("/"); }}><Icon name="times" size={16} /></button>
+        <button className="link-btn" onClick={(e) => { e.stopPropagation(); navigate("/"); }}><Icon name="x" size={16} /></button>
       </header>
       <div className="story-media">
         <Media media={story.media} />

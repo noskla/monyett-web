@@ -68,7 +68,7 @@ export default function Lightbox({ src, alt, onClose }: { src: string; alt?: str
   return (
     <div className="lightbox" onClick={onClose} onWheel={onWheel}>
       <button className="lightbox-close" onClick={onClose} aria-label="close">
-        <Icon name="times" size={20} />
+        <Icon name="x" size={20} />
       </button>
       <img
         ref={imgRef}

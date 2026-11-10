@@ -56,8 +56,8 @@ export default function Layout() {
         </main>
         <aside className="sidebar">
           <nav className="side-nav card">
-            <Link to="/"><Icon name="home" size={16} /> Feed</Link>
-            {features?.discover && <Link to="/discover"><Icon name="compass" size={16} /> Discover</Link>}
+            <Link to="/"><Icon name="home-2" size={16} /> Feed</Link>
+            {features?.discover && <Link to="/discover"><Icon name="discover" size={16} /> Discover</Link>}
           </nav>
           {features?.notifications && <NotificationsPanel />}
           <p className="muted small side-note">

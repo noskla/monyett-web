@@ -110,8 +110,8 @@ export default function PostDetail() {
         <Media media={post.media} />
         <footer className="post-footer muted small">
           <LikeButton postId={post.publicId} initialLiked={post.is_liked} initialCount={post.likes_count ?? 0} />
-          <span><Icon name="comments" size={15} /> {post.comments_count ?? 0}</span>
-          <span><Icon name="share-alt" size={15} /> {post.repost_count ?? 0}</span>
+          <span><Icon name="comment-1" size={15} /> {post.comments_count ?? 0}</span>
+          <span><Icon name="share-1" size={15} /> {post.repost_count ?? 0}</span>
         </footer>
       </article>
 

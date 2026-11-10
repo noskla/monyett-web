@@ -67,7 +67,7 @@ export default function Compose() {
             ))}
           </select>
           <label className="file-picker">
-            {file ? file.name : <><Icon name="camera" size={15} /> Add one photo</>}
+            {file ? file.name : <><Icon name="camera-1" size={15} /> Add one photo</>}
             <input
               type="file"
               accept="image/*"

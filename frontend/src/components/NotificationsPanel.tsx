@@ -46,7 +46,7 @@ export default function NotificationsPanel() {
   return (
     <div className="card side-notifs">
       <div className="side-notifs-head">
-        <strong><Icon name="bell" size={15} /> Notifications</strong>
+        <strong><Icon name="bell-1" size={15} /> Notifications</strong>
         {unread !== null && unread > 0 && <span className="unread-pill">{unread}</span>}
         {unread !== null && unread > 0 && (
           <button className="link-btn small" onClick={markAll}>mark all seen</button>

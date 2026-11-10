@@ -55,10 +55,10 @@ export default function Media({ media }: { media?: MediaFile[] }) {
       <div className="carousel-stage">
         <MediaItem m={media[safe]} onZoom={setZoomSrc} />
         <button className="carousel-btn prev" onClick={(e) => { e.preventDefault(); prev(); }} aria-label="previous">
-          <Icon name="chevron-left" size={18} />
+          <Icon name="chevron-left-circle" size={18} />
         </button>
         <button className="carousel-btn next" onClick={(e) => { e.preventDefault(); next(); }} aria-label="next">
-          <Icon name="chevron-right" size={18} />
+          <Icon name="chevron-right-circle" size={18} />
         </button>
         <span className="carousel-counter">{safe + 1}/{media.length}</span>
       </div>
