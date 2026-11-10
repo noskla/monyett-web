@@ -98,8 +98,13 @@ export const api = {
 
   // Phase 3 (feature-flagged on the backend)
   features: () => request<import("./types").Features>("/api/features"),
-  createPost: (body: { description?: string; title?: string; share_with?: string; media_count?: number }) =>
-    api.mPost<string>("v1/app/post/create", { post_type: "POST", ...body }),
+  createPost: (body: {
+    description?: string;
+    title?: string;
+    share_with?: string;
+    media_count?: number;
+    location?: { latitude?: number; longitude?: number; city?: string; country?: string; address?: string; zip?: string; area?: string };
+  }) => api.mPost<string>("v1/app/post/create", { post_type: "POST", ...body }),
   uploadMedia: (postId: string, file: File, mediaIndex = 0) => {
     const fd = new FormData();
     fd.append("postId", postId);
