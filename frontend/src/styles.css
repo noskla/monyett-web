@@ -454,3 +454,7 @@ a { color: var(--link); }
 }
 .like-btn:hover { color: var(--text); }
 .like-btn.liked { color: var(--accent); }
+
+/* like button is a <button> — normalize UA button metrics so it matches plain spans */
+.post-footer > * { display: inline-flex; align-items: center; gap: 0.25rem; line-height: 1; }
+.like-btn { font: inherit; appearance: none; -webkit-appearance: none; }
