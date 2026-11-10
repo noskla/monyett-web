@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import type { Post } from "../types";
+import type { Post, User } from "../types";
 import Avatar from "./Avatar";
 import Media from "./Media";
 import LikeButton from "./LikeButton";
@@ -16,8 +16,8 @@ function locationText(post: Post): string {
 
 /** The dominant feed component: author, text, media, counts.
  *  Only the timestamp links to the post page; the rest of the card is not a link. */
-export default function PostCard({ post }: { post: Post }) {
-  const author = post.posted_by;
+export default function PostCard({ post, authorFallback }: { post: Post; authorFallback?: User }) {
+  const author = post.posted_by ?? authorFallback;
   const authorName = author?.name ?? author?.username ?? "unknown";
   const avatarUrl =
     author?.profile_picture?.url ??

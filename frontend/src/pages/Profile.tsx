@@ -50,13 +50,19 @@ export default function Profile() {
         const full = await api.profile(String(pub.id)).catch(() => null);
         // own profile: legacy endpoint may lack badge/tier — take them from the session user
         const self = user && (pub.id === user.id || pub.publicId === user.publicId);
-        setProfile({
+        const merged: ProfileShape = {
           ...(full?.data as ProfileShape),
           ...pub,
           id: pub.id,
           publicId: pub.publicId,
           ...(self ? { badge: user?.badge, effectiveTier: user?.effectiveTier } : {}),
-        });
+        };
+        // avatar can live under different keys on the different endpoints — keep the first that resolves
+        if (!avatarOf(merged)) {
+          const alt = avatarOf(pub) ?? avatarOf(full?.data) ?? avatarOf(user);
+          if (alt) (merged as Record<string, unknown>).avatar_url = alt;
+        }
+        setProfile(merged);
         await loadPosts(String(pub.id), 1, true);
       } catch (e) {
         setError((e as ApiError).message ?? "failed to load profile");
@@ -127,7 +133,7 @@ export default function Profile() {
       </header>
       <section className="profile-posts">
         {posts.map((p) => (
-          <PostCard key={p.publicId ?? p.id} post={p} />
+          <PostCard key={p.publicId ?? p.id} post={p} authorFallback={profile} />
         ))}
         {posts.length === 0 && !loadingPosts && <p className="muted">No posts yet.</p>}
         {(pageCount === null || page < pageCount) && posts.length > 0 && (
