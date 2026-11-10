@@ -44,12 +44,14 @@ export default function Lightbox({ src, alt, onClose }: { src: string; alt?: str
   }, [onClose]);
 
   function onWheel(e: React.WheelEvent) {
-    const rect = imgRef.current?.getBoundingClientRect();
-    if (rect && rect.width > 0) {
-      // zoom toward the cursor position
+    const img = imgRef.current;
+    if (img && img.offsetWidth > 0) {
+      // offset* are the PRE-transform layout box (the lightbox is fixed at
+      // inset 0, so viewport coords map 1:1) — getBoundingClientRect would
+      // return the already-zoomed box and zoom at the wrong point
       setOrigin({
-        x: clamp(((e.clientX - rect.left) / rect.width) * 100, 0, 100),
-        y: clamp(((e.clientY - rect.top) / rect.height) * 100, 0, 100),
+        x: clamp(((e.clientX - img.offsetLeft) / img.offsetWidth) * 100, 0, 100),
+        y: clamp(((e.clientY - img.offsetTop) / img.offsetHeight) * 100, 0, 100),
       });
     }
     setScale((s) => clamp(s + (e.deltaY < 0 ? 0.15 : -0.15), 0.5, 8));
