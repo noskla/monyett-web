@@ -37,6 +37,7 @@ export function avatarOf(user: unknown): string | undefined {
   }
   for (const [k, v] of Object.entries(u)) {
     if (!/avatar|picture/i.test(k)) continue;
+    if (/ring/i.test(k)) continue; // avatar_ring_color(s) are colors, not URLs
     if (typeof v === "string" && v) return v;
     if (v && typeof v === "object") {
       for (const f of AVATAR_URL_FIELDS) {

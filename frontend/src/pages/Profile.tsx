@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import Lightbox from "../components/Lightbox";
 import { Link, useParams } from "react-router-dom";
 import { ApiError, api } from "../api";
 import Avatar from "../components/Avatar";
@@ -34,6 +35,7 @@ export default function Profile() {
   const [page, setPage] = useState(0);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [loadingPosts, setLoadingPosts] = useState(false);
+  const [zoomAvatar, setZoomAvatar] = useState(false);
   const { user } = useSession();
 
   useEffect(() => {
@@ -102,13 +104,24 @@ export default function Profile() {
   return (
     <div className="profile">
       <header className="card profile-header">
-        <Avatar
-          url={avatarOf(profile)}
-          name={profile.display_name ?? profile.name ?? profile.username}
-          size={96}
-          user={profile}
-         
-        />
+        <span
+          className="avatar-zoomable"
+          onClick={() => avatarOf(profile) && setZoomAvatar(true)}
+          title="View avatar"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && setZoomAvatar(true)}
+        >
+          <Avatar
+            url={avatarOf(profile)}
+            name={profile.display_name ?? profile.name ?? profile.username}
+            size={96}
+            user={profile}
+          />
+        </span>
+        {zoomAvatar && avatarOf(profile) && (
+          <Lightbox src={avatarOf(profile)!} alt={profile.username ?? "avatar"} onClose={() => setZoomAvatar(false)} />
+        )}
         <div className="profile-info">
           <div className="profile-names">
             <h2>

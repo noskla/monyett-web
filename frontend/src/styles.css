@@ -434,3 +434,5 @@ a { color: var(--link); }
 
 /* avatar check scales via inline size; keep positioned to top-right */
 .avatar-check { position: absolute; bottom: -3px; right: -3px; border-radius: 50%; color: #0f1115; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--bg); }
+
+.avatar-zoomable { cursor: zoom-in; display: inline-block; }
