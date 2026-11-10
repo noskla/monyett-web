@@ -7,7 +7,7 @@ import FollowButton from "../components/FollowButton";
 import UserBadge from "../components/UserBadge";
 import RichText from "../components/RichText";
 import { useSession } from "../hooks";
-import { avatarOf, ringColorOf } from "../util";
+import { avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
 import type { Pagination, Post, User } from "../types";
 
 interface UserStats {
@@ -99,13 +99,13 @@ export default function Profile() {
           url={avatarOf(profile)}
           name={profile.display_name ?? profile.name ?? profile.username}
           size={72}
-          badge={profile.badge}
+          user={profile}
           ringColor={ringColorOf(profile)}
         />
         <div className="profile-info">
           <h2>
             {profile.display_name ?? profile.name ?? profile.username}{" "}
-            <UserBadge badge={profile.badge} tier={profile.effectiveTier} />
+            <UserBadge badge={badgeOf(profile)} tier={tierOf(profile)} />
           </h2>
           <p className="muted">@{profile.username}</p>
           {profile.bio && (

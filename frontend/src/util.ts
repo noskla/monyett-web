@@ -31,19 +31,41 @@ export function avatarOf(user: unknown): string | undefined {
 
 /** The user-chosen avatar ring color (hex), from any of the shapes the API uses. */
 export function ringColorOf(user: unknown): string | undefined {
-  const u = user as {
-    avatar_ring_color?: string;
-    avatar_ring_colors?: string[];
-    avatarRingColor?: { hexCode?: string; colors?: string[] };
-  } | null;
+  const u = user as Record<string, any> | null;
+  if (!u) return undefined;
   return (
-    u?.avatar_ring_color ??
-    u?.avatarRingColor?.hexCode ??
-    u?.avatar_ring_colors?.[0] ??
-    u?.avatarRingColor?.colors?.[0]
+    u.avatar_ring_color ??
+    u.avatarRingColor?.hexCode ??
+    u.avatar_ring_colors?.[0] ??
+    u.avatarRingColor?.colors?.[0]
   );
 }
 
-export function isHumanBadge(badge?: string | null): boolean {
-  return (badge ?? "").toUpperCase().includes("HUMAN");
+/** Badge string from any plausible field name (badge, userBadge, ...). */
+export function badgeOf(user: unknown): string | undefined {
+  const u = user as Record<string, any> | null;
+  if (!u) return undefined;
+  for (const [k, v] of Object.entries(u)) {
+    if (/badge/i.test(k) && typeof v === "string" && v.trim()) return v;
+  }
+  return undefined;
+}
+
+/** Membership tier from any plausible field (effectiveTier, subscriptionTier,
+ *  member/isMember booleans, ...). Returns an uppercase token or undefined. */
+export function tierOf(user: unknown): string | undefined {
+  const u = user as Record<string, any> | null;
+  if (!u) return undefined;
+  for (const [k, v] of Object.entries(u)) {
+    const key = k.toLowerCase();
+    if ((key.includes("tier") || key.includes("subscription") || key === "membership") ) {
+      if (typeof v === "string" && v.trim() && v.toUpperCase() !== "FREE" && v.toUpperCase() !== "NONE") return v.toUpperCase();
+    }
+    if ((key === "member" || key === "ismember" || key === "is_member") && v === true) return "MEMBER";
+  }
+  return undefined;
+}
+
+export function isHumanBadge(user: unknown): boolean {
+  return (badgeOf(user) ?? "").toUpperCase().includes("HUMAN");
 }

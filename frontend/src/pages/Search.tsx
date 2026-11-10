@@ -4,7 +4,7 @@ import { ApiError, api } from "../api";
 import PostCard from "../components/PostCard";
 import Avatar from "../components/Avatar";
 import UserBadge from "../components/UserBadge";
-import { avatarOf, ringColorOf } from "../util";
+import { avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
 import type { Post, User } from "../types";
 
 /** Search: users via legacy /api/search (type=user), posts via v1
@@ -85,10 +85,10 @@ export default function Search() {
         <>
           {users.map((u) => (
             <Link to={`/u/${u.username}`} className="card user-result" key={u.publicId ?? u.id}>
-              <Avatar url={avatarOf(u)} name={u.display_name ?? u.name ?? u.username} size={40} badge={u.badge} ringColor={ringColorOf(u)} />
+              <Avatar url={avatarOf(u)} name={u.display_name ?? u.name ?? u.username} size={40} user={u} ringColor={ringColorOf(u)} />
               <span>
                 <strong>{u.display_name ?? u.name ?? u.username}</strong>
-                <UserBadge badge={u.badge} tier={u.effectiveTier} />
+                <UserBadge badge={badgeOf(u)} tier={tierOf(u)} />
                 {u.username && <span className="muted"> @{u.username}</span>}
               </span>
             </Link>

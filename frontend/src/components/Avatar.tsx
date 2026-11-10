@@ -4,8 +4,8 @@ interface AvatarProps {
   url?: string | null;
   name?: string | null;
   size?: number;
-  /** badge string; "HUMAN" renders a checkmark overlay */
-  badge?: string | null;
+  /** the user object — badge/ring are derived from it (tolerant of field names) */
+  user?: unknown;
   /** user-chosen ring color (hex) */
   ringColor?: string | null;
 }
@@ -13,8 +13,8 @@ interface AvatarProps {
 const DEFAULT_HUMAN_RING = "#50c88c";
 
 /** Avatar with optional colored ring + human-verified checkmark overlay. */
-export default function Avatar({ url, name, size = 40, badge, ringColor }: AvatarProps) {
-  const human = isHumanBadge(badge);
+export default function Avatar({ url, name, size = 40, user, ringColor }: AvatarProps) {
+  const human = isHumanBadge(user);
   const ring = ringColor ?? (human ? DEFAULT_HUMAN_RING : null);
   const inner = url ? (
     <img className="avatar" src={url} alt={name ?? ""} width={size} height={size} loading="lazy" />

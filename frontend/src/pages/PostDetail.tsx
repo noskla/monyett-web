@@ -9,7 +9,7 @@ import Avatar from "../components/Avatar";
 import UserBadge from "../components/UserBadge";
 import RichText from "../components/RichText";
 import { useSession } from "../hooks";
-import { timeAgo, avatarOf, ringColorOf } from "../util";
+import { timeAgo, avatarOf, ringColorOf, badgeOf, tierOf } from "../util";
 import type { Comment, CommentsPage, Pagination, Post } from "../types";
 
 /** Full post + comments. Writes (comment/reply/delete/like) are optimistic
@@ -85,10 +85,10 @@ export default function PostDetail() {
       <article className="card post-card">
         <header className="post-header">
           <span className="post-author">
-            <Avatar url={avatarOf(author)} name={authorName} size={40} badge={author?.badge} ringColor={ringColorOf(author)} />
+            <Avatar url={avatarOf(author)} name={authorName} size={40} user={author} ringColor={ringColorOf(author)} />
             <span>
               <strong>{authorName}</strong>
-              <UserBadge badge={author?.badge} tier={author?.effectiveTier} />
+              <UserBadge badge={badgeOf(author)} tier={tierOf(author)} />
               {author?.username && <span className="muted"> @{author.username}</span>}
             </span>
           </span>

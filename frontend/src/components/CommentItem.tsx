@@ -5,7 +5,7 @@ import Avatar from "./Avatar";
 import CommentComposer from "./CommentComposer";
 import UserBadge from "./UserBadge";
 import RichText from "./RichText";
-import { timeAgo, ringColorOf } from "../util";
+import { timeAgo, ringColorOf, badgeOf, tierOf } from "../util";
 
 interface Props {
   comment: Comment;
@@ -61,11 +61,11 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
 
   return (
     <div className="comment">
-      <Avatar url={author?.avatar_url} name={name} size={32} badge={author?.badge} ringColor={ringColorOf(author)} />
+      <Avatar url={author?.avatar_url} name={name} size={32} user={author} ringColor={ringColorOf(author)} />
       <div className="comment-body">
         <div className="comment-head">
           <strong>{name}</strong>
-          <UserBadge badge={author?.badge} tier={author?.effectiveTier} />
+          <UserBadge badge={badgeOf(author)} tier={tierOf(author)} />
           {author?.username && <span className="muted"> @{author.username}</span>}
           <span className="muted small"> {timeAgo(comment.created_at)}</span>
         </div>
@@ -104,7 +104,7 @@ export default function CommentItem({ comment, currentUserId, currentUserPublicI
         )}
         {showReplies && replies.map((r) => (
           <div className="comment reply" key={r.public_id}>
-            <Avatar url={r.commented_by?.avatar_url} name={r.commented_by?.name ?? r.commented_by?.username} size={28} badge={r.commented_by?.badge} ringColor={ringColorOf(r.commented_by)} />
+            <Avatar url={r.commented_by?.avatar_url} name={r.commented_by?.name ?? r.commented_by?.username} size={28} user={r.commented_by} ringColor={ringColorOf(r.commented_by)} />
             <div className="comment-body">
               <div className="comment-head">
                 <strong>{r.commented_by?.name ?? r.commented_by?.username ?? "unknown"}</strong>
