@@ -10,7 +10,7 @@ interface AvatarProps {
   ringColor?: string | null;
 }
 
-const DEFAULT_HUMAN_RING = "#0089f7"; // brand blue, not green
+const DEFAULT_HUMAN_RING = "#ff384f"; // brand pink (--accent)
 const MEMBER_COLOR = "#0089f7";
 const MEMBER_PLUS_COLOR = "#ffd257";
 
