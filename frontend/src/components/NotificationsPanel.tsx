@@ -57,9 +57,9 @@ export default function NotificationsPanel() {
         const actor = n.actor ?? (n as Record<string, unknown>).user as Notification["actor"];
         const post = n.post ?? (n as Record<string, unknown>).post as Notification["post"];
         const when = n.created_at ?? n.createdAt;
-        const meta = notifMeta(n.type, n.message);
+        const meta = notifMeta(n as Record<string, unknown>);
         const actorName = actor?.name ?? actor?.username ?? "Someone";
-        const fullText = `${actorName} ${meta.verb}${n.message && !meta.verb.includes(n.message) ? ` — ${n.message}` : ""}${when ? ` · ${timeAgo(when)}` : ""}`;
+        const fullText = `${actorName} ${meta.verb}${when ? ` · ${timeAgo(when)}` : ""}`;
         const row = (
           <>
             <span
@@ -73,7 +73,7 @@ export default function NotificationsPanel() {
               <Icon name={meta.icon} size={15} />
             </span>
             <span className="side-notif-text" title={fullText}>
-              <strong>{actorName}</strong> {meta.verb}
+              {meta.verb}
               {when && <span className="muted small"> · {timeAgo(when)}</span>}
             </span>
             {!n.is_seen && <span className="unread-dot" />}

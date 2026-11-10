@@ -94,18 +94,27 @@ export interface NotifMeta {
   color: string;
 }
 
-/** Map a notification type to a Lineicon + verb (Lineicons instead of emoji,
- *  per the design decision). Falls back to the raw type/message. */
-export function notifMeta(type?: string | null, message?: string | null): NotifMeta {
-  const t = (type ?? "").toUpperCase();
-  const fallback: NotifMeta = { icon: "bell-1", verb: (message ?? "").trim() || t.toLowerCase() || "notification", color: "var(--muted)" };
-  if (t.includes("LIKE")) return { icon: "heart", verb: "liked your post", color: "var(--accent)" };
-  if (t.includes("REPLY")) return { icon: "comment-1-text", verb: "replied to your comment", color: "var(--link)" };
-  if (t.includes("COMMENT")) return { icon: "comment-1", verb: "commented on your post", color: "var(--link)" };
-  if (t.includes("FOLLOW")) return { icon: "user-4", verb: "started following you", color: "#6fdcb0" };
-  if (t.includes("REPOST") || t.includes("SHARE")) return { icon: "share-1", verb: "reposted your post", color: "var(--link)" };
-  if (t.includes("MENTION")) return { icon: "user-4", verb: "mentioned you", color: "#ffd257" };
-  if (t.includes("VIEW") || t.includes("STORY")) return { icon: "eye", verb: "viewed your story", color: "var(--muted)" };
-  if (t.includes("STAR") || t.includes("FAVORITE")) return { icon: "star-fat", verb: "starred your post", color: "#ffd257" };
+/** Map a notification to a Lineicon + verb. Scans every type-ish key AND the
+ *  message text, because the API doesn't always populate `type`. */
+export function notifMeta(n: Record<string, any> | null | undefined): NotifMeta {
+  if (!n) return { icon: "bell-1", verb: "notification", color: "var(--muted)" };
+  const typeish = ["type", "kind", "event", "action", "notification_type", "notificationType"]
+    .map((k) => (typeof n[k] === "string" ? n[k] : ""))
+    .join(" ");
+  const hay = (typeish + " " + (typeof n.message === "string" ? n.message : "")).toUpperCase();
+  const fallback: NotifMeta = {
+    icon: "bell-1",
+    verb: (typeof n.message === "string" && n.message.trim()) || typeish.trim().toLowerCase() || "notification",
+    color: "var(--muted)",
+  };
+  if (hay.includes("REPLY")) return { icon: "comment-1-text", verb: "replied to your comment", color: "var(--link)" };
+  if (hay.includes("LIKE") || hay.includes("LOVE")) return { icon: "heart", verb: "liked your post", color: "var(--accent)" };
+  if (hay.includes("COMMENT")) return { icon: "comment-1", verb: "commented on your post", color: "var(--link)" };
+  if (hay.includes("FOLLOW")) return { icon: "user-4", verb: "started following you", color: "#6fdcb0" };
+  if (hay.includes("REPOST") || hay.includes("SHARE")) return { icon: "share-1", verb: "reposted your post", color: "var(--link)" };
+  if (hay.includes("MENTION") || hay.includes("TAG")) return { icon: "user-4", verb: "mentioned you", color: "#ffd257" };
+  if (hay.includes("STORY")) return { icon: "camera-1", verb: "posted a story", color: "var(--link)" };
+  if (hay.includes("VIEW")) return { icon: "eye", verb: "viewed your story", color: "var(--muted)" };
+  if (hay.includes("STAR") || hay.includes("FAVORITE")) return { icon: "star-fat", verb: "starred your post", color: "#ffd257" };
   return fallback;
 }

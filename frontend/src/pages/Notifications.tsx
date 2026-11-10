@@ -63,7 +63,7 @@ export default function Notifications() {
         const actor = n.actor ?? (n as Record<string, unknown>).user as Notification["actor"];
         const post = n.post ?? (n as Record<string, unknown>).post as Notification["post"];
         const when = n.created_at ?? n.createdAt;
-        const meta = notifMeta(n.type, n.message);
+        const meta = notifMeta(n as Record<string, unknown>);
         const actorName = actor?.name ?? actor?.username ?? "Someone";
         const inner = (
           <>
