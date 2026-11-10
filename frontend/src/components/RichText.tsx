@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
-const HASHTAG = /#([\p{L}\p{N}_]+)/gu;
+// # must not be preceded by a word char, so emails like a#b don't match
+const HASHTAG = /(?<![\p{L}\p{N}_#])#([\p{L}\p{N}_]+)/gu;
 
 /** Renders plain text with #hashtags as links to hashtag search.
  *  Text is rendered as React text nodes only — no HTML injection. */
