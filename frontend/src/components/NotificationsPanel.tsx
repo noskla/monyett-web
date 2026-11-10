@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
-import Avatar from "./Avatar";
 import Icon from "./Icon";
-import { avatarOf, timeAgo, notifMeta } from "../util";
+import { timeAgo, notifMeta } from "../util";
 import type { Notification } from "../types";
 
 function extractList(raw: unknown): Notification[] {
@@ -63,10 +62,16 @@ export default function NotificationsPanel() {
         const fullText = `${actorName} ${meta.verb}${n.message && !meta.verb.includes(n.message) ? ` — ${n.message}` : ""}${when ? ` · ${timeAgo(when)}` : ""}`;
         const row = (
           <>
-            <span className="notif-icon" style={{ background: `${meta.color}22`, color: meta.color }}>
-              <Icon name={meta.icon} size={14} />
+            <span
+              className="notif-icon"
+              style={{
+                color: meta.color,
+                background: `color-mix(in srgb, ${meta.color} 20%, transparent)`,
+                border: `1px solid color-mix(in srgb, ${meta.color} 45%, transparent)`,
+              }}
+            >
+              <Icon name={meta.icon} size={15} />
             </span>
-            <Avatar url={avatarOf(actor)} name={actorName} size={28} user={actor} />
             <span className="side-notif-text" title={fullText}>
               <strong>{actorName}</strong> {meta.verb}
               {when && <span className="muted small"> · {timeAgo(when)}</span>}
