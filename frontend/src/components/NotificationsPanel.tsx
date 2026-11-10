@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { api } from "../api";
 import Avatar from "./Avatar";
 import Icon from "./Icon";
-import { avatarOf, timeAgo } from "../util";
+import { avatarOf, timeAgo, notifMeta } from "../util";
 import type { Notification } from "../types";
 
 function extractList(raw: unknown): Notification[] {
@@ -12,7 +12,8 @@ function extractList(raw: unknown): Notification[] {
   return (o?.notifications as Notification[]) ?? (o?.items as Notification[]) ?? (o?.data as Notification[]) ?? [];
 }
 
-/** Sidebar notifications panel: unread count, latest 5, mark-all-seen, view-all link. */
+/** Sidebar notifications panel: unread count, latest 5 with event-type icon,
+ *  actor shown once, readable text, full text on hover, mark-all-seen. */
 export default function NotificationsPanel() {
   const [items, setItems] = useState<Notification[]>([]);
   const [unread, setUnread] = useState<number | null>(null);
@@ -38,7 +39,7 @@ export default function NotificationsPanel() {
       await api.markAllNotificationsSeen();
       setUnread(0);
       setItems((prev) => prev.map((n) => ({ ...n, is_seen: true })));
-    } catch (e) {
+    } catch {
       /* ignore */
     }
   }
@@ -57,15 +58,17 @@ export default function NotificationsPanel() {
         const actor = n.actor ?? (n as Record<string, unknown>).user as Notification["actor"];
         const post = n.post ?? (n as Record<string, unknown>).post as Notification["post"];
         const when = n.created_at ?? n.createdAt;
+        const meta = notifMeta(n.type, n.message);
+        const actorName = actor?.name ?? actor?.username ?? "Someone";
+        const fullText = `${actorName} ${meta.verb}${n.message && !meta.verb.includes(n.message) ? ` — ${n.message}` : ""}${when ? ` · ${timeAgo(when)}` : ""}`;
         const row = (
           <>
-            <Avatar url={avatarOf(actor)} name={actor?.name ?? actor?.username} size={28} user={actor} />
-            <span
-              className="side-notif-text"
-              title={`${actor?.name ?? actor?.username ?? "Someone"} ${n.message ?? n.type ?? ""} ${when ? timeAgo(when) : ""}`}
-            >
-              <strong>{actor?.name ?? actor?.username ?? "Someone"}</strong>{" "}
-              <span className="muted">{n.message ?? n.type ?? ""}</span>
+            <span className="notif-icon" style={{ background: `${meta.color}22`, color: meta.color }}>
+              <Icon name={meta.icon} size={14} />
+            </span>
+            <Avatar url={avatarOf(actor)} name={actorName} size={28} user={actor} />
+            <span className="side-notif-text" title={fullText}>
+              <strong>{actorName}</strong> {meta.verb}
               {when && <span className="muted small"> · {timeAgo(when)}</span>}
             </span>
             {!n.is_seen && <span className="unread-dot" />}

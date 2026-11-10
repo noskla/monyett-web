@@ -80,3 +80,25 @@ export function tierOf(user: unknown): string | undefined {
 export function isHumanBadge(user: unknown): boolean {
   return (badgeOf(user) ?? "").toUpperCase().includes("HUMAN");
 }
+
+export interface NotifMeta {
+  icon: string;
+  verb: string;
+  color: string;
+}
+
+/** Map a notification type to a Lineicon + verb (Lineicons instead of emoji,
+ *  per the design decision). Falls back to the raw type/message. */
+export function notifMeta(type?: string | null, message?: string | null): NotifMeta {
+  const t = (type ?? "").toUpperCase();
+  const fallback: NotifMeta = { icon: "bell", verb: (message ?? "").trim() || t.toLowerCase() || "notification", color: "var(--muted)" };
+  if (t.includes("LIKE")) return { icon: "heart-filled", verb: "liked your post", color: "var(--accent)" };
+  if (t.includes("REPLY")) return { icon: "comments-reply", verb: "replied to your comment", color: "var(--link)" };
+  if (t.includes("COMMENT")) return { icon: "comments", verb: "commented on your post", color: "var(--link)" };
+  if (t.includes("FOLLOW")) return { icon: "user", verb: "started following you", color: "#6fdcb0" };
+  if (t.includes("REPOST") || t.includes("SHARE")) return { icon: "share-alt", verb: "reposted your post", color: "var(--link)" };
+  if (t.includes("MENTION")) return { icon: "user", verb: "mentioned you", color: "#ffd257" };
+  if (t.includes("VIEW") || t.includes("STORY")) return { icon: "eye", verb: "viewed your story", color: "var(--muted)" };
+  if (t.includes("STAR") || t.includes("FAVORITE")) return { icon: "star-filled", verb: "starred your post", color: "#ffd257" };
+  return fallback;
+}

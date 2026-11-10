@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { ApiError, api } from "../api";
 import Avatar from "../components/Avatar";
 import UserBadge from "../components/UserBadge";
-import { avatarOf, badgeOf, tierOf, timeAgo } from "../util";
+import { avatarOf, badgeOf, tierOf, timeAgo, notifMeta } from "../util";
+import Icon from "../components/Icon";
 import type { Notification } from "../types";
 
 function extractList(raw: unknown): Notification[] {
@@ -60,16 +61,20 @@ export default function Notifications() {
       {!loading && items.length === 0 && !error && <p className="muted">No notifications.</p>}
       {items.map((n, i) => {
         const actor = n.actor ?? (n as Record<string, unknown>).user as Notification["actor"];
-        const text = n.message ?? n.type ?? "notification";
         const post = n.post ?? (n as Record<string, unknown>).post as Notification["post"];
         const when = n.created_at ?? n.createdAt;
+        const meta = notifMeta(n.type, n.message);
+        const actorName = actor?.name ?? actor?.username ?? "Someone";
         const inner = (
           <>
-            <Avatar url={avatarOf(actor)} name={actor?.name ?? actor?.username} size={36} user={actor} ringColor={undefined} />
+            <span className="notif-icon" style={{ background: `${meta.color}22`, color: meta.color }}>
+              <Icon name={meta.icon} size={16} />
+            </span>
+            <Avatar url={avatarOf(actor)} name={actorName} size={36} user={actor} ringColor={undefined} />
             <span>
-              <strong>{actor?.name ?? actor?.username ?? "Someone"}</strong>
+              <strong>{actorName}</strong>
               <UserBadge badge={badgeOf(actor)} tier={tierOf(actor)} />
-              <span className="muted"> {text}</span>
+              <span> {meta.verb}</span>
               {when && <span className="muted small"> · {timeAgo(when)}</span>}
             </span>
             {!n.is_seen && <span className="unread-dot" title="unread" />}
