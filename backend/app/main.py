@@ -73,9 +73,9 @@ GATE_EXEMPT_PATHS = {"/api/healthz", "/auth/gate"}
 
 DIST_DIR = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 
-GATE_PAGE_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>monyett-web</title>
-<style>body{font-family:system-ui,sans-serif;background:#0f1115;color:#e8e8ea;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}form{display:flex;flex-direction:column;gap:.75rem;width:260px}input,button{padding:.6rem .8rem;border-radius:8px;border:1px solid #333;background:#1a1d24;color:inherit}button{background:#4f7cff;border:none;cursor:pointer}.err{color:#ff7b7b;font-size:.85rem}</style>
-</head><body><form id="f"><h2>monyett-web</h2><input id="p" type="password" placeholder="passcode" autocomplete="current-password"><button>Unlock</button><div class="err" id="e"></div></form>
+GATE_PAGE_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Monnett — web (unofficial)</title>
+<style>body{font-family:system-ui,sans-serif;background:#161922;color:#fff;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}form{display:flex;flex-direction:column;gap:.75rem;width:260px;align-items:center}input,button{padding:.6rem .8rem;border-radius:8px;border:1px solid #2b3040;background:#1e2230;color:inherit;width:100%;box-sizing:border-box}button{background:#ff384f;border:none;cursor:pointer}button:hover{background:#f5405e}.err{color:#ff7b7b;font-size:.85rem}</style>
+</head><body><form id="f"><svg viewBox="0 0 749 749" width="44" height="44" aria-hidden="true"><path d="M124.856,0.722l498.879,0c68.725,0 124.438,55.712 124.438,124.438l0,498.879c0,68.725 -55.713,124.438 -124.438,124.438l-498.879,0c-68.725,0 -124.438,-55.713 -124.438,-124.438l0,-498.879c0,-68.725 55.712,-124.438 124.438,-124.438Z" fill="#ff384f"/></svg><input id="p" type="password" placeholder="passcode" autocomplete="current-password"><button>Unlock</button><div class="err" id="e"></div></form>
 <script>document.getElementById('f').onsubmit=async ev=>{ev.preventDefault();const r=await fetch('/auth/gate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passcode:document.getElementById('p').value})});if(r.ok)location.reload();else document.getElementById('e').textContent='wrong passcode';};</script>
 </body></html>"""
 

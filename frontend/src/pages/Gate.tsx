@@ -28,7 +28,7 @@ export default function Gate() {
   return (
     <div className="center">
       <form className="card gate-form" onSubmit={submit}>
-        <h1>monyett-web</h1>
+        <img src="/logo.svg" alt="Monnett" className="auth-logo" />
         <p className="muted">personal client — passcode required</p>
         <input
           type="password"

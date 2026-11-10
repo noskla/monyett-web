@@ -22,7 +22,7 @@ export default function Layout() {
     <div className="container">
       <header className="topbar">
         <Link to="/" className="brand">
-          <strong>monyett-web</strong>
+          <img src="/logo.svg" alt="Monnett" className="brand-logo" />
         </Link>
         <form className="topbar-search" onSubmit={onSearch}>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search users or #tag" />

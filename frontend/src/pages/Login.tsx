@@ -36,7 +36,7 @@ export default function Login() {
         <div className="banner error">Monnett API is not reachable ({health.data?.error}) — login disabled.</div>
       )}
       <form className="card login-form" onSubmit={submit}>
-        <h1>monyett-web</h1>
+        <img src="/logo.svg" alt="Monnett" className="auth-logo" />
         <input
           type="email"
           placeholder="email"
