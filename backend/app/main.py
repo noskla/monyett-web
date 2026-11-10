@@ -167,6 +167,15 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
     async def healthz() -> dict:
         return {"ok": True, "environment": config.environment}
 
+    @app.get("/api/upstream-health")
+    async def upstream_health() -> JSONResponse:
+        """Unauthenticated probe of the Monnett environment (login-page banner)."""
+        try:
+            result = await app.state.monnett.request("GET", "/api/_health")
+            return JSONResponse({"ok": True, "data": result.data})
+        except MonnettApiError as exc:
+            return JSONResponse({"ok": False, "error": exc.message})
+
     @app.post("/auth/gate")
     async def gate(body: GateRequest, request: Request, response: Response) -> JSONResponse:
         if not config.client_access_passcode or body.passcode != config.client_access_passcode:
