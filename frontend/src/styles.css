@@ -79,3 +79,31 @@ button:disabled { opacity: 0.5; cursor: default; }
   margin-bottom: 1rem;
 }
 .topbar button { margin-left: auto; padding: 0.35rem 0.9rem; }
+
+/* --- Phase 1: feed / post / profile --- */
+.brand { color: var(--text); text-decoration: none; }
+.feed, .post-detail, .profile { display: flex; flex-direction: column; gap: 0.75rem; }
+.feed-toolbar { display: flex; align-items: center; justify-content: space-between; }
+.feed-toolbar h2 { margin: 0.25rem 0; }
+.date-key { margin: 0.5rem 0 0.25rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.post-card { gap: 0.5rem; }
+.post-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.post-author { display: flex; align-items: center; gap: 0.6rem; color: var(--text); text-decoration: none; }
+.avatar { border-radius: 50%; object-fit: cover; background: var(--border); flex-shrink: 0; }
+.avatar-fallback { display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
+.post-body { color: var(--text); text-decoration: none; }
+.post-title { margin: 0.25rem 0; font-size: 1.05rem; }
+.post-text { margin: 0.25rem 0; white-space: pre-wrap; word-break: break-word; }
+.media { display: flex; flex-direction: column; gap: 0.5rem; }
+.media-item { max-width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+.post-footer { display: flex; gap: 1rem; }
+.load-more { align-self: center; background: var(--panel); border: 1px solid var(--border); }
+.comments { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; }
+.comment { display: flex; gap: 0.6rem; }
+.comment-body { flex: 1; }
+.comment-head { display: flex; gap: 0.4rem; align-items: baseline; }
+.comment-text { margin: 0.15rem 0; white-space: pre-wrap; word-break: break-word; }
+.profile-header { flex-direction: row; align-items: center; gap: 1rem; }
+.profile-header h2 { margin: 0; }
+.profile-header .bio { margin: 0.25rem 0; }
+.profile-posts { display: flex; flex-direction: column; gap: 0.75rem; }

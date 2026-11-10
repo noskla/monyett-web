@@ -1,0 +1,115 @@
+import { useCallback, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { ApiError, api } from "../api";
+import Avatar from "../components/Avatar";
+import PostCard from "../components/PostCard";
+import { avatarOf } from "../util";
+import type { Pagination, Post, User } from "../types";
+
+interface UserStats {
+  followerCount?: number;
+  followingCount?: number;
+  postCount?: number;
+}
+
+interface ProfileShape extends User {
+  stats?: UserStats;
+  followerCount?: number;
+  followingCount?: number;
+  postCount?: number;
+}
+
+/** Profile: resolve username -> IDs, then full legacy profile + posts grid.
+ *  v1 uses UUIDs, legacy endpoints numeric IDs — both kept, never mixed. */
+export default function Profile() {
+  const { username } = useParams<{ username: string }>();
+  const [profile, setProfile] = useState<ProfileShape | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [page, setPage] = useState(0);
+  const [pageCount, setPageCount] = useState<number | null>(null);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+
+  useEffect(() => {
+    setProfile(null);
+    setError(null);
+    setPosts([]);
+    setPage(0);
+    setPageCount(null);
+    if (!username) return;
+    (async () => {
+      try {
+        const res = await api.byUsername(username);
+        const pub = res.data as User;
+        // full profile via legacy numeric-ID endpoint
+        const full = await api.profile(String(pub.id)).catch(() => null);
+        setProfile({ ...(full?.data as ProfileShape), ...pub, id: pub.id, publicId: pub.publicId });
+        await loadPosts(String(pub.id), 1, true);
+      } catch (e) {
+        setError((e as ApiError).message ?? "failed to load profile");
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username]);
+
+  const loadPosts = useCallback(async (numericId: string, p: number, replace: boolean) => {
+    setLoadingPosts(true);
+    try {
+      const res = await api.userPosts(numericId, p, 20);
+      const raw = res.data as unknown;
+      const list = Array.isArray(raw)
+        ? (raw as Post[])
+        : ((raw as { posts?: Post[]; data?: Post[] })?.posts ?? (raw as { data?: Post[] })?.data ?? []);
+      const meta = (res.meta ?? (raw as { meta?: Pagination })?.meta) as Pagination | undefined;
+      setPageCount(meta?.pagination?.pageCount ?? null);
+      setPage(p);
+      setPosts((prev) => (replace ? list : [...prev, ...list]));
+    } catch {
+      // posts list is best-effort; profile header still renders
+    } finally {
+      setLoadingPosts(false);
+    }
+  }, []);
+
+  if (error) return <p className="error">{error}</p>;
+  if (!profile) return <p className="muted">Loading profile…</p>;
+
+  const stats = profile.stats;
+  const followers = stats?.followerCount ?? profile.followerCount;
+  const following = stats?.followingCount ?? profile.followingCount;
+  const postCount = stats?.postCount ?? profile.postCount;
+
+  return (
+    <div className="profile">
+      <header className="card profile-header">
+        <Avatar url={avatarOf(profile)} name={profile.display_name ?? profile.name ?? profile.username} size={72} />
+        <div>
+          <h2>{profile.display_name ?? profile.name ?? profile.username}</h2>
+          <p className="muted">@{profile.username}</p>
+          {profile.bio && <p className="bio">{profile.bio}</p>}
+          <p className="muted small">
+            {postCount ?? posts.length} posts · {followers ?? "?"} followers · {following ?? "?"} following
+          </p>
+        </div>
+      </header>
+      <section className="profile-posts">
+        {posts.map((p) => (
+          <PostCard key={p.publicId ?? p.id} post={p} />
+        ))}
+        {posts.length === 0 && !loadingPosts && <p className="muted">No posts yet.</p>}
+        {(pageCount === null || page < pageCount) && posts.length > 0 && (
+          <button
+            className="load-more"
+            disabled={loadingPosts}
+            onClick={() => profile.id && loadPosts(String(profile.id), page + 1, false)}
+          >
+            {loadingPosts ? "Loading…" : "Load more"}
+          </button>
+        )}
+      </section>
+      <p className="muted small">
+        <Link to="/">← back to feed</Link>
+      </p>
+    </div>
+  );
+}

@@ -60,4 +60,15 @@ export const api = {
   mPost: <T>(path: string, body?: unknown) =>
     request<Envelope<T>>(`/m/${path}`, { method: "POST", body: body !== undefined ? JSON.stringify(body) : undefined }),
   mDelete: <T>(path: string) => request<Envelope<T>>(`/m/${path}`, { method: "DELETE" }),
+
+  // Phase 1 endpoints (allowlisted on the backend; paths without the /api prefix)
+  feed: (page: number, limit = 20) =>
+    api.mGet<import("./types").FeedResponse>("v1/app/feed", { page, limit }),
+  post: (publicId: string) => api.mGet<import("./types").Post>(`v1/app/post/${publicId}`),
+  comments: (postId: string, page: number, limit = 20) =>
+    api.mGet<import("./types").CommentsPage>(`v1/app/posts/${postId}/comments`, { page, limit }),
+  byUsername: (username: string) => api.mGet<import("./types").User>(`v1/app/user/by-username/${encodeURIComponent(username)}`),
+  profile: (numericId: string) => api.mGet<import("./types").User>(`profile/${numericId}`),
+  userPosts: (numericId: string, page: number, size = 20) =>
+    api.mGet<unknown>(`users/${numericId}/posts`, { page, pagination_size: size }),
 };
