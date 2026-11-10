@@ -77,7 +77,7 @@ export default function Notifications() {
               <span> {meta.verb}</span>
               {when && <span className="muted small"> · {timeAgo(when)}</span>}
             </span>
-            {!n.is_seen && <span className="unread-dot" title="unread" />}
+
           </>
         );
         return (
