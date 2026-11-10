@@ -172,7 +172,12 @@ def create_app(config: Config, upstream_transport: httpx.AsyncBaseTransport | No
         while dq and now - dq[0] > 60:
             dq.popleft()
         if len(dq) >= config.rate_limit_per_minute:
-            raise HTTPException(status_code=429, detail="rate limit exceeded")
+            retry_after = max(1, int(60 - (now - dq[0])) + 1)
+            raise HTTPException(
+                status_code=429,
+                detail="rate limit exceeded",
+                headers={"Retry-After": str(retry_after)},
+            )
         dq.append(now)
 
     def client_from_request(request: Request) -> tuple[bool, sess.SessionData | None]:

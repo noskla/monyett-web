@@ -196,4 +196,7 @@ def test_rate_limit_guardrail(upstream):
             codes = [ (await ac.get("/m/_health", headers=both_cookies())).status_code for _ in range(7) ]
             assert codes[:5] == [200] * 5
             assert codes[5:] == [429, 429]
+            r429 = await ac.get("/m/_health", headers=both_cookies())
+            assert r429.status_code == 429
+            assert int(r429.headers["retry-after"]) > 0
     run(main())

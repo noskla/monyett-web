@@ -3,6 +3,7 @@
 // Tokens never touch JS — they live in the HttpOnly encrypted cookie.
 
 import type { ApiErrorBody, Envelope } from "./types";
+import { notifyRateLimit } from "./ratelimit";
 
 export class ApiError extends Error {
   constructor(
@@ -12,6 +13,13 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.name = "ApiError";
+  }
+}
+
+export class RateLimitedError extends ApiError {
+  constructor(public retryAfterSec: number) {
+    super(429, "rate_limited", "rate limit exceeded");
+    this.name = "RateLimitedError";
   }
 }
 
@@ -29,6 +37,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     | Envelope<T>
     | ApiErrorBody
     | null;
+  if (res.status === 429) {
+    const retryAfter = Number(res.headers.get("retry-after")) || 60;
+    notifyRateLimit(retryAfter);
+    throw new RateLimitedError(retryAfter);
+  }
   if (!res.ok) {
     const err = (body as ApiErrorBody | null)?.error;
     throw new ApiError(res.status, err?.code, err?.message ?? res.statusText);

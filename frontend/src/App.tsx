@@ -10,6 +10,7 @@ import Notifications from "./pages/Notifications";
 import Discover from "./pages/Discover";
 import StoryViewer from "./pages/StoryViewer";
 import Layout from "./components/Layout";
+import RateLimitOverlay from "./components/RateLimitOverlay";
 import { useSession } from "./hooks";
 
 export default function App() {
@@ -22,7 +23,9 @@ export default function App() {
   const needsGate = gate === "gate";
 
   return (
-    <Routes>
+    <>
+      <RateLimitOverlay />
+      <Routes>
       <Route path="/gate" element={user && !needsGate ? <Navigate to="/" replace /> : <Gate />} />
       <Route
         path="/login"
@@ -43,6 +46,7 @@ export default function App() {
         <Route path="/stories/:publicId" element={<StoryViewer />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
