@@ -83,7 +83,7 @@ button:disabled { opacity: 0.5; cursor: default; }
   border-bottom: 1px solid var(--border);
   margin-bottom: 1rem;
 }
-.topbar button { margin-left: auto; padding: 0.35rem 0.9rem; }
+.topbar button { padding: 0.35rem 0.9rem; }
 
 /* --- Phase 1: feed / post / profile --- */
 .brand { color: var(--text); text-decoration: none; }
