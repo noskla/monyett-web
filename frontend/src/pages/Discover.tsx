@@ -1,55 +1,82 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiError, api } from "../api";
 import PostCard from "../components/PostCard";
 import Icon from "../components/Icon";
+import { COUNTRIES, TOP_CITIES } from "../data/geo";
 import type { Post } from "../types";
 
 type Scope = "GLOBAL" | "COUNTRY" | "CITY" | "NEARBY";
 
-/** Discover feed. The API requires startScope OR lat+lng+radius (else 400):
- *  - GLOBAL/COUNTRY/CITY -> area feed, {items, next_cursor}
- *  - NEARBY -> radius feed, {posts, next_cursor}
- *  Both response shapes are handled. */
+const LS_KEY = "monnett.discover";
+
+function loadSaved(): Partial<{ scope: Scope; country: string; city: string; radius: number }> {
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) ?? "{}");
+  } catch {
+    return {};
+  }
+}
+
+/** Discover feed. Requires startScope OR lat+lng+radius (API 400s otherwise).
+ *  Remembers the last chosen scope/country/city and auto-loads on mount. */
 export default function Discover() {
-  const [scope, setScope] = useState<Scope>("GLOBAL");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [radius, setRadius] = useState(25);
+  const saved = useMemo(loadSaved, []);
+  const [scope, setScope] = useState<Scope>(saved.scope ?? "GLOBAL");
+  const [country, setCountry] = useState(saved.country ?? "");
+  const [countryFilter, setCountryFilter] = useState("");
+  const [city, setCity] = useState(saved.city ?? "");
+  const [cityFilter, setCityFilter] = useState("");
+  const [customCity, setCustomCity] = useState("");
+  const [radius, setRadius] = useState(saved.radius ?? 25);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [membersOnly, setMembersOnly] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searched, setSearched] = useState(false);
+
+  const countries = useMemo(
+    () => COUNTRIES.filter((c) => c.toLowerCase().includes(countryFilter.toLowerCase())),
+    [countryFilter],
+  );
+  const cities = useMemo(() => {
+    const list = TOP_CITIES[country] ?? [];
+    return list.filter((c) => c.toLowerCase().includes(cityFilter.toLowerCase()));
+  }, [country, cityFilter]);
+
+  const effectiveCity = customCity.trim() || city;
 
   function buildParams(cur: string | null): Record<string, string | number | boolean | undefined> {
-    const base: Record<string, string | number | boolean | undefined> = { limit: 20, cursor: cur ?? undefined, members_only: membersOnly || undefined };
+    const base: Record<string, string | number | boolean | undefined> = {
+      limit: 20,
+      cursor: cur ?? undefined,
+      members_only: membersOnly || undefined,
+    };
     if (scope === "NEARBY") {
-      const p: Record<string, string | number | boolean | undefined> = { ...base, lat: coords?.lat, lng: coords?.lng, radius };
-      return p;
+      return { ...base, lat: coords?.lat, lng: coords?.lng, radius };
     }
-    const p: Record<string, string | number | boolean | undefined> = {
+    return {
       ...base,
       startScope: scope,
-      ...(scope === "CITY" ? { city: city || undefined, country: country || undefined } : {}),
+      ...(scope === "CITY" ? { city: effectiveCity || undefined, country: country || undefined } : {}),
       ...(scope === "COUNTRY" ? { country: country || undefined } : {}),
       ...(scope === "GLOBAL" ? { includeUnlocated: true } : {}),
     };
-    return p;
   }
 
   const load = useCallback(
     async (cur: string | null, replace: boolean) => {
       const params = buildParams(cur);
-      // client-side guard mirroring the API contract: startScope or lat+lng+radius required
       const hasScope = params.startScope != null;
       const hasRadius = params.lat != null && params.lng != null && params.radius != null;
       if (!hasScope && !hasRadius) {
-        setError(scope === "NEARBY" ? "Location needed for Nearby — use “Use my location”." : "Enter a city/country or switch to Nearby.");
+        setError(scope === "NEARBY" ? "Location needed for Nearby — use “Use my location”." : "Pick a country (and city) or switch to Nearby.");
         return;
       }
       setLoading(true);
       setError(null);
+      setSearched(true);
       try {
         const res = await api.discover(params);
         const raw = res.data as Record<string, unknown>;
@@ -66,14 +93,32 @@ export default function Discover() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scope, city, country, radius, coords, membersOnly],
+    [scope, country, effectiveCity, radius, coords, membersOnly],
   );
+
+  // persist + auto-load on mount with the remembered (or default Global) scope
+  useEffect(() => {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({ scope, country, city, radius }));
+    } catch {
+      /* ignore */
+    }
+    load(null, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function onScopeChange(s: Scope) {
+    setScope(s);
+    setPosts([]);
+    setCursor(null);
+    setSearched(false);
+  }
 
   function useMyLocation() {
     setError(null);
     navigator.geolocation?.getCurrentPosition(
       (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => setError("Location permission denied — pick a scope instead."),
+      () => setError("Location permission denied — pick another scope."),
     );
   }
 
@@ -84,17 +129,50 @@ export default function Discover() {
       </div>
       <div className="discover-controls card">
         <div className="compose-row">
-          <select value={scope} onChange={(e) => { setScope(e.target.value as Scope); setPosts([]); setCursor(null); }}>
+          <select value={scope} onChange={(e) => onScopeChange(e.target.value as Scope)}>
             <option value="GLOBAL">Global</option>
             <option value="COUNTRY">Country</option>
             <option value="CITY">City</option>
             <option value="NEARBY">Nearby (radius)</option>
           </select>
           {(scope === "CITY" || scope === "COUNTRY") && (
-            <>
-              {scope === "CITY" && <input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />}
-              <input placeholder="Country" value={country} onChange={(e) => setCountry(e.target.value)} />
-            </>
+            <div className="geo-picker">
+              <input
+                placeholder="Search countries…"
+                value={countryFilter}
+                onChange={(e) => setCountryFilter(e.target.value)}
+              />
+              <select value={country} onChange={(e) => { setCountry(e.target.value); setCity(""); setCustomCity(""); }}>
+                <option value="">Choose country…</option>
+                {countries.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {scope === "CITY" && country && (
+            <div className="geo-picker">
+              {cities.length > 0 && (
+                <>
+                  <input
+                    placeholder="Search top cities…"
+                    value={cityFilter}
+                    onChange={(e) => setCityFilter(e.target.value)}
+                  />
+                  <select value={city} onChange={(e) => { setCity(e.target.value); setCustomCity(""); }}>
+                    <option value="">Top cities…</option>
+                    {cities.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </>
+              )}
+              <input
+                placeholder="or custom city name"
+                value={customCity}
+                onChange={(e) => { setCustomCity(e.target.value); setCity(""); }}
+              />
+            </div>
           )}
           {scope === "NEARBY" && (
             <>
@@ -116,7 +194,8 @@ export default function Discover() {
       {posts.map((p) => (
         <PostCard key={p.publicId ?? p.id} post={p} />
       ))}
-      {!loading && posts.length === 0 && !error && <p className="muted">Pick a scope and search.</p>}
+      {!loading && posts.length === 0 && !error && searched && <p className="muted">No posts found for this scope.</p>}
+      {!searched && !loading && <p className="muted">Loading…</p>}
       {cursor && (
         <button className="load-more" onClick={() => load(cursor, false)} disabled={loading}>
           {loading ? "Loading…" : "Load more"}

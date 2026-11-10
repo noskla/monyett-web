@@ -348,3 +348,8 @@ a { color: var(--link); }
 /* --- comment tree --- */
 .link-btn.icon-only { display: inline-flex; padding: 0.1rem; }
 .replies { margin-top: 0.5rem; margin-left: 0.5rem; padding-left: 0.75rem; border-left: 2px solid var(--border); display: flex; flex-direction: column; gap: 0.75rem; }
+
+/* --- discover geo pickers --- */
+.geo-picker { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+.geo-picker input { padding: 0.4rem 0.7rem; font-size: 0.9rem; width: 170px; }
+.geo-picker select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem; max-width: 200px; }
